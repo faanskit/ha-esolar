@@ -1,0 +1,75 @@
+"""Constants for the eSolar integration."""
+from typing import Final
+
+DOMAIN = "esolar"
+CONF_MONITORED_SITES = "monitored_sites"
+CONF_UPDATE_INTERVAL = 1
+ATTRIBUTION = "Data provided by SAJ eSolar"
+MANUFACTURER = "SAJ"
+
+CONF_INVERTER_SENSORS: Final = "show_inverter_sensors"
+CONF_PV_GRID_DATA: Final = "show_pv_grid_data"
+
+# Plant Sensor Attributes
+PLANT_MODEL = "Solar Plant"
+P_NAME = "Plant Name"
+P_UID = "Plant UId"
+P_ADR = "Plant Address"
+P_TYPE = "Plant Type"
+P_POWER = "Plant Power"
+P_CURRENCY = "Plant Currency"
+P_INCOME = "Plant Total Grid Income"
+P_CO2 = "Plant Total Co2 Reduction"
+P_TREES = "Plant Total Trees Planted"
+P_TODAY_E = "Plant Today Energy"
+P_TOTAL_E = "Plant Total Energy"
+P_CURRENT_POWER = "Plant Current Power"
+P_PEAK_POWER = "Plant Peak Power"
+
+# Inverter Sensor Attributes
+I_MODEL = "Inverter Model"
+I_SN = "Inverter S/N"
+I_PC = "Inverter PC"
+I_TYPE = "Inverter Type"
+I_DB = "Inverter Display Board"
+I_CTR = "Inverter Control Board"
+I_MOD_SN = "Inverter Module S/N"
+I_TODAY_E = "Inverter Today Energy"
+I_MONTH_E = "Inverter Month Energy"
+I_TOTAL_E = "Inverter Total Energy"
+I_STATUS = "Inverter Status"
+I_CURRENT_POWER = "Inverter Current Power"
+
+# Plant Status
+P_TYPE_GRID = "Grid"
+P_TYPE_STORAGE = "Storage"
+P_TYPE_BLEND = "Blend"
+P_TYPE_AC_COUPLING = "AC Coupling"
+
+I_PV_VOL_PV = "Photovoltaics Voltage PV1, PV2, PV3"
+I_PV_CURR_PV = "Photovoltaics Current PV1, PV2, PV3"
+
+I_G_VOL_L = "Grid Voltage L1, L2, L3"
+I_G_CURR_L = "Grid Current L1, L2, L3"
+I_G_FREQ_L = "Grid Frequency L1, L2, L3"
+
+B_DIRECTION = "Battery Direction"
+B_PVELEC = "Battery PV Energy"
+B_USELEC = "Battergy Use Energy"
+B_BUYELEC = "Battery Buy Energy"
+B_SELLELEC = "Battery Sell Energy"
+B_BUY_RATE = "Battery Buy Rate (%)"
+B_SELL_RATE = "Battery Sell Rate (%)"
+
+
+B_GRID_POWER_W = "Grid Power (W)"
+B_GRID_POWER_VA = "Grid Power (VA)"
+B_OUT_VOLT = "Battery Output Voltage"
+B_OUT_CURR = "Battery Output Current"
+B_OUT_POWER_WATT = "Battery Output Power (W)"
+B_OUT_POWER_VA = "Battery Output Power (VA)"
+B_OUT_FREQ = "Battery Output Frequency"
+B_BACKUP_POWER_W = "Backup Power (W)"
+B_ON_G_VOLT = "On Grid Voltage"
+B_ON_G_FREQ = "On Grid Frequency"
+B_ON_G_POWER_W = "On Grid Output Power (W)"

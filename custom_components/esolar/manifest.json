@@ -1,0 +1,15 @@
+{
+  "domain": "esolar",
+  "name": "eSolar",
+  "config_flow": true,
+  "documentation": "https://www.home-assistant.io/integrations/esolar",
+  "requirements": [],
+  "ssdp": [],
+  "zeroconf": [],
+  "homekit": {},
+  "dependencies": [],
+  "codeowners": [
+    "@faanskit"
+  ],
+  "iot_class": "cloud_polling"
+}

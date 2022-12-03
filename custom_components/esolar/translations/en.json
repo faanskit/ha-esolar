@@ -1,0 +1,42 @@
+{
+  "config": {
+    "step": {
+      "user": {
+        "data": {
+          "username": "Username",
+          "password": "Password"
+        },
+        "description": "Please enter the username and password for your SAJ eSolar account",
+        "title":"SAJ eSolar"
+      },
+      "sites":{
+        "data":{
+          "monitored_sites": "Sites"
+        },
+        "description": "Select sites to monitor",
+        "title":"SAJ eSolar"
+      }
+    },
+    "error": {
+      "cannot_connect": "Cannot connect",
+      "invalid_auth": "Invalid authentication",
+      "unknown": "Unknown error",
+      "no_sites": "No monitored sites selected"
+    },
+    "abort": {
+      "already_configured": "Already configured"
+    }
+  },
+  "options": {
+    "step": {
+      "init": {
+        "data": {
+          "show_inverter_sensors": "Show inverter sensors",
+          "show_pv_grid_data": "Show Photovoltaics and Grid attributes"
+        },
+        "description": "Select options",
+        "title": "SAJ eSolar"
+        }
+    }
+  }
+}
