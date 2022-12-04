@@ -10,13 +10,14 @@ BASE_URL_WEB = "https://fop.saj-electric.com/saj"
 WEB_TIMEOUT = 10
 
 BASIC_TEST = False
-# Use "H1", "R5" or "Robbie"
-TEST_SYSTEM = "Robbie"
+# Use "H1", "R5", "Robbie" or "Robbie_NEW"
+TEST_SYSTEM = "Robbie_NEW"
 if BASIC_TEST:
     from .esolar_static_test import (
         get_esolar_data_static_r5,
         get_esolar_data_static_h1,
         get_esolar_data_static_robbie,
+        get_esolar_data_static_robbie_new,
         web_get_plant_static_r5,
         web_get_plant_static_h1,
         web_get_plant_static_robbie,
@@ -52,6 +53,10 @@ def get_esolar_data(username, password, plant_list=None, use_pv_grid_attributes=
             )
         elif TEST_SYSTEM == "Robbie":
             return get_esolar_data_static_robbie(
+                username, password, plant_list, use_pv_grid_attributes
+            )
+        elif TEST_SYSTEM == "Robbie_NEW":
+            return get_esolar_data_static_robbie_new(
                 username, password, plant_list, use_pv_grid_attributes
             )
         return get_esolar_data_static_r5(
@@ -128,6 +133,8 @@ def web_get_plant(session, requested_plant_list=None):
         if TEST_SYSTEM == "H1":
             return web_get_plant_static_h1()
         if TEST_SYSTEM == "Robbie":
+            return web_get_plant_static_robbie()
+        if TEST_SYSTEM == "Robbie_NEW":
             return web_get_plant_static_robbie()
         return web_get_plant_static_r5()
 

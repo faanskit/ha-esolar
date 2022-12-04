@@ -592,23 +592,48 @@ class ESolarSensorPlantBatterySoC(ESolarSensor):
 
     async def async_update(self) -> None:
         """Get the latest data and updates the states."""
+        installed_power = 0
+        available_power = 0
         for plant in self._coordinator.data["plantList"]:
             if plant["plantname"] == self._plant_name:
                 self._attr_extra_state_attributes[P_NAME] = plant["plantname"]
                 self._attr_extra_state_attributes[P_UID] = plant["plantuid"]
-                self._attr_native_value = float(
-                    plant["kitList"][0]["storeDevicePower"]["batEnergyPercent"]
-                )
+                for inverter in plant["plantDetail"]["snList"]:
+                    for kit in plant["kitList"]:
+                        if inverter == kit["devicesn"]:
+                            if kit["onLineStr"] == "1":
+                                installed_power += kit["storeDevicePower"]["batCapcity"]
+                                available_power += (
+                                    kit["storeDevicePower"]["batCapcity"]
+                                    * kit["storeDevicePower"]["batEnergyPercent"]
+                                )
+
+                # self._attr_native_value = float(
+                #    plant["kitList"][0]["storeDevicePower"]["batEnergyPercent"]
+                # )
+                self._attr_native_value = float(available_power / installed_power)
                 self._attr_available = True
 
     @property
     def native_value(self) -> str | None:
         """Return sensor state."""
+        installed_power = 0
+        available_power = 0
         for plant in self._coordinator.data["plantList"]:
             if plant["plantname"] == self._plant_name:
-                value = float(
-                    plant["kitList"][0]["storeDevicePower"]["batEnergyPercent"]
-                )
+                # value = float(
+                #    plant["kitList"][0]["storeDevicePower"]["batEnergyPercent"]
+                # )
+                for inverter in plant["plantDetail"]["snList"]:
+                    for kit in plant["kitList"]:
+                        if inverter == kit["devicesn"]:
+                            if kit["onLineStr"] == "1":
+                                installed_power += kit["storeDevicePower"]["batCapcity"]
+                                available_power += (
+                                    kit["storeDevicePower"]["batCapcity"]
+                                    * kit["storeDevicePower"]["batEnergyPercent"]
+                                )
+                value = float(available_power / installed_power)
 
         return value
 
