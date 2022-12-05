@@ -212,7 +212,7 @@ class ESolarSensorPlant(ESolarSensor):
         self._device_model = PLANT_MODEL
 
         self._attr_icon = ICON_PANEL
-        self._attr_name = f"ESolar Plant {self._plant_name} Status"
+        self._attr_name = f"Plant {self._plant_name} Status"
 
         self._attr_extra_state_attributes = {
             P_NAME: None,
@@ -331,7 +331,7 @@ class ESolarSensorPlantTotalEnergy(ESolarSensor):
         self._device_model = PLANT_MODEL
 
         self._attr_icon = ICON_POWER
-        self._attr_name = f"ESolar Plant {self._plant_name} Energy Total "
+        self._attr_name = f"Plant {self._plant_name} Energy Total "
         self._attr_native_unit_of_measurement = UnitOfEnergy.KILO_WATT_HOUR
         self._attr_device_class = SensorDeviceClass.ENERGY
         self._attr_state_class = SensorStateClass.TOTAL_INCREASING
@@ -408,7 +408,7 @@ class ESolarSensorPlantBatteryBuyEnergy(ESolarSensor):
         self._device_model = PLANT_MODEL
 
         self._attr_icon = ICON_POWER
-        self._attr_name = f"ESolar Plant {self._plant_name} Buy Energy Total"
+        self._attr_name = f"Plant {self._plant_name} Buy Energy Total"
         self._attr_native_unit_of_measurement = UnitOfEnergy.KILO_WATT_HOUR
         self._attr_device_class = SensorDeviceClass.ENERGY
         self._attr_state_class = SensorStateClass.TOTAL_INCREASING
@@ -454,7 +454,7 @@ class ESolarSensorPlantBatterySellEnergy(ESolarSensor):
         self._device_model = PLANT_MODEL
 
         self._attr_icon = ICON_POWER
-        self._attr_name = f"ESolar Plant {self._plant_name} Sell Energy Total"
+        self._attr_name = f"Plant {self._plant_name} Sell Energy Total"
         self._attr_native_unit_of_measurement = UnitOfEnergy.KILO_WATT_HOUR
         self._attr_device_class = SensorDeviceClass.ENERGY
         self._attr_state_class = SensorStateClass.TOTAL_INCREASING
@@ -500,7 +500,7 @@ class ESolarSensorPlantBatteryChargeEnergy(ESolarSensor):
         self._device_model = PLANT_MODEL
 
         self._attr_icon = ICON_POWER
-        self._attr_name = f"ESolar Plant {self._plant_name} Charge Energy"
+        self._attr_name = f"Plant {self._plant_name} Charge Energy"
         self._attr_native_unit_of_measurement = UnitOfEnergy.KILO_WATT_HOUR
         self._attr_device_class = SensorDeviceClass.ENERGY
         self._attr_state_class = SensorStateClass.TOTAL_INCREASING
@@ -553,7 +553,7 @@ class ESolarSensorPlantBatteryDischargeEnergy(ESolarSensor):
         self._device_model = PLANT_MODEL
 
         self._attr_icon = ICON_POWER
-        self._attr_name = f"ESolar Plant {self._plant_name} Discharge Energy"
+        self._attr_name = f"Plant {self._plant_name} Discharge Energy"
         self._attr_native_unit_of_measurement = UnitOfEnergy.KILO_WATT_HOUR
         self._attr_device_class = SensorDeviceClass.ENERGY
         self._attr_state_class = SensorStateClass.TOTAL_INCREASING
@@ -607,7 +607,7 @@ class ESolarSensorPlantBatterySoC(ESolarSensor):
         self._device_model = PLANT_MODEL
 
         # self._attr_icon = ICON_POWER
-        self._attr_name = f"ESolar Plant {self._plant_name} State Of Charge"
+        self._attr_name = f"Plant {self._plant_name} State Of Charge"
         self._attr_native_unit_of_measurement = PERCENTAGE
         self._attr_device_class = SensorDeviceClass.BATTERY
         self._attr_state_class = SensorStateClass.MEASUREMENT
@@ -685,7 +685,7 @@ class ESolarInverterEnergyTotal(ESolarSensor):
         self._device_model = PLANT_MODEL
 
         self._attr_icon = ICON_POWER
-        self._attr_name = f"ESolar {inverter_sn} Energy Total"
+        self._attr_name = f"Inverter {inverter_sn} Energy Total"
         self._attr_native_unit_of_measurement = UnitOfEnergy.KILO_WATT_HOUR
         self._attr_device_class = SensorDeviceClass.ENERGY
         self._attr_state_class = SensorStateClass.TOTAL_INCREASING
@@ -910,7 +910,7 @@ class ESolarInverterPower(ESolarSensor):
         self.inverter_sn = inverter_sn
 
         self._attr_icon = ICON_POWER
-        self._attr_name = f"ESolar {inverter_sn} Power"
+        self._attr_name = f"Inverter {inverter_sn} Power"
         self._attr_native_unit_of_measurement = UnitOfPower.WATT
         self._attr_device_class = SensorDeviceClass.POWER
         self._attr_state_class = SensorStateClass.MEASUREMENT
