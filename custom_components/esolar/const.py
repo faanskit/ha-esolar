@@ -10,6 +10,9 @@ MANUFACTURER = "SAJ"
 CONF_INVERTER_SENSORS: Final = "show_inverter_sensors"
 CONF_PV_GRID_DATA: Final = "show_pv_grid_data"
 
+# Misc
+P_UNKNOWN = "Unknown"
+
 # Plant Sensor Attributes
 PLANT_MODEL = "Solar Plant"
 P_NAME = "Plant Name"
@@ -45,6 +48,7 @@ P_TYPE_GRID = "Grid"
 P_TYPE_STORAGE = "Storage"
 P_TYPE_BLEND = "Blend"
 P_TYPE_AC_COUPLING = "AC Coupling"
+P_TYPE_ONGRID = "On-rid"
 
 I_PV_VOL_PV = "Photovoltaics Voltage PV1, PV2, PV3"
 I_PV_CURR_PV = "Photovoltaics Current PV1, PV2, PV3"
@@ -73,3 +77,15 @@ B_BACKUP_POWER_W = "Backup Power (W)"
 B_ON_G_VOLT = "On Grid Voltage"
 B_ON_G_FREQ = "On Grid Frequency"
 B_ON_G_POWER_W = "On Grid Output Power (W)"
+
+# Inverter status
+I_NORMAL = "Normal"
+I_ALARM = "Alarm"
+I_OFFLINE = "Off-line"
+I_STOCK = "Stock"
+I_HISTORY = "History"
+
+# Battery
+B_DIR_CH = "Charging"
+B_DIR_DIS = "Discharging"
+B_DIR_STB = "Standby"

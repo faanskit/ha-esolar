@@ -22,6 +22,7 @@ from .const import (
     CONF_MONITORED_SITES,
     CONF_PV_GRID_DATA,
     DOMAIN,
+    P_UNKNOWN,
     I_CTR,
     I_CURRENT_POWER,
     I_DB,
@@ -56,6 +57,7 @@ from .const import (
     P_TYPE_BLEND,
     P_TYPE_GRID,
     P_TYPE_STORAGE,
+    P_TYPE_ONGRID,
     P_UID,
     PLANT_MODEL,
     B_DIRECTION,
@@ -76,6 +78,14 @@ from .const import (
     B_ON_G_VOLT,
     B_ON_G_FREQ,
     B_ON_G_POWER_W,
+    I_NORMAL,
+    I_ALARM,
+    I_OFFLINE,
+    I_STOCK,
+    I_HISTORY,
+    B_DIR_CH,
+    B_DIR_DIS,
+    B_DIR_STB,
 )
 
 ICON_POWER = "mdi:solar-power"
@@ -708,14 +718,21 @@ class ESolarInverterEnergyTotal(ESolarSensor):
                         self._attr_extra_state_attributes[I_MODEL] = kit["devicetype"]
 
                         if kit["type"] == 0:
-                            self._attr_extra_state_attributes[I_TYPE] = "On-grid"
+                            self._attr_extra_state_attributes[I_TYPE] = P_TYPE_ONGRID
+                        elif kit["type"] == 1:
+                            self._attr_extra_state_attributes[I_TYPE] = P_TYPE_STORAGE
+                        elif kit["type"] == 2:
+                            self._attr_extra_state_attributes[
+                                I_TYPE
+                            ] = P_TYPE_AC_COUPLING
                         else:
-                            self._attr_extra_state_attributes[I_TYPE] = "Unknown"
+                            self._attr_extra_state_attributes[I_TYPE] = P_UNKNOWN
 
                         self._attr_extra_state_attributes[I_SN] = kit["devicesn"]
                         self._attr_extra_state_attributes[I_PC] = kit["devicepc"]
                         self._attr_extra_state_attributes[I_DB] = kit["displayfw"]
-                        self._attr_extra_state_attributes[I_CTR] = kit["slavemcufw"]
+                        # self._attr_extra_state_attributes[I_CTR] = kit["slavemcufw"]
+                        self._attr_extra_state_attributes[I_CTR] = kit["mastermcufw"]
                         self._attr_extra_state_attributes[I_MOD_SN] = kit["kitSn"]
                         self._attr_extra_state_attributes[I_TODAY_E] = float(
                             kit["todaySellEnergy"]
@@ -727,17 +744,17 @@ class ESolarInverterEnergyTotal(ESolarSensor):
                             kit["totalSellEnergy"]
                         )
                         if kit["onLineStr"] == "1":
-                            self._attr_extra_state_attributes[I_STATUS] = "Normal"
+                            self._attr_extra_state_attributes[I_STATUS] = I_NORMAL
                         elif kit["onLineStr"] == "2":
-                            self._attr_extra_state_attributes[I_STATUS] = "Alarm"
+                            self._attr_extra_state_attributes[I_STATUS] = I_ALARM
                         elif kit["onLineStr"] == "3":
-                            self._attr_extra_state_attributes[I_STATUS] = "Off-line"
+                            self._attr_extra_state_attributes[I_STATUS] = I_OFFLINE
                         elif kit["onLineStr"] == "4":
-                            self._attr_extra_state_attributes[I_STATUS] = "Stock"
-                        elif kit["onLineStr"] == "4":
-                            self._attr_extra_state_attributes[I_STATUS] = "History"
+                            self._attr_extra_state_attributes[I_STATUS] = I_STOCK
+                        elif kit["onLineStr"] == "5":
+                            self._attr_extra_state_attributes[I_STATUS] = I_HISTORY
                         else:
-                            self._attr_extra_state_attributes[I_STATUS] = "Unknown"
+                            self._attr_extra_state_attributes[I_STATUS] = P_UNKNOWN
 
                         self._attr_extra_state_attributes[I_CURRENT_POWER] = kit[
                             "powernow"
@@ -747,19 +764,19 @@ class ESolarInverterEnergyTotal(ESolarSensor):
                             if kit["storeDevicePower"]["batteryDirection"] == 0:
                                 self._attr_extra_state_attributes[
                                     B_DIRECTION
-                                ] = "Standby"
+                                ] = B_DIR_STB
                             elif kit["storeDevicePower"]["batteryDirection"] == 1:
                                 self._attr_extra_state_attributes[
                                     B_DIRECTION
-                                ] = "Discharging"
+                                ] = B_DIR_DIS
                             elif kit["storeDevicePower"]["batteryDirection"] == -1:
                                 self._attr_extra_state_attributes[
                                     B_DIRECTION
-                                ] = "Charging"
+                                ] = B_DIR_CH
                             else:
                                 self._attr_extra_state_attributes[
                                     B_DIRECTION
-                                ] = "Unknown"
+                                ] = P_UNKNOWN
 
                         self._attr_native_value = float(kit["totalSellEnergy"])
 
@@ -793,9 +810,15 @@ class ESolarInverterEnergyTotal(ESolarSensor):
                     if kit["devicesn"] == self.inverter_sn:
                         value = float(kit["totalSellEnergy"])
                         if kit["type"] == 0:
-                            self._attr_extra_state_attributes[I_TYPE] = "On-grid"
+                            self._attr_extra_state_attributes[I_TYPE] = P_TYPE_ONGRID
+                        elif kit["type"] == 1:
+                            self._attr_extra_state_attributes[I_TYPE] = P_TYPE_STORAGE
+                        elif kit["type"] == 2:
+                            self._attr_extra_state_attributes[
+                                I_TYPE
+                            ] = P_TYPE_AC_COUPLING
                         else:
-                            self._attr_extra_state_attributes[I_TYPE] = "Unknown"
+                            self._attr_extra_state_attributes[I_TYPE] = P_UNKNOWN
                         self._attr_extra_state_attributes[I_TODAY_E] = float(
                             kit["todaySellEnergy"]
                         )
@@ -806,17 +829,17 @@ class ESolarInverterEnergyTotal(ESolarSensor):
                             kit["totalSellEnergy"]
                         )
                         if kit["onLineStr"] == "1":
-                            self._attr_extra_state_attributes[I_STATUS] = "Normal"
+                            self._attr_extra_state_attributes[I_STATUS] = I_NORMAL
                         elif kit["onLineStr"] == "2":
-                            self._attr_extra_state_attributes[I_STATUS] = "Alarm"
+                            self._attr_extra_state_attributes[I_STATUS] = I_ALARM
                         elif kit["onLineStr"] == "3":
-                            self._attr_extra_state_attributes[I_STATUS] = "Off-line"
+                            self._attr_extra_state_attributes[I_STATUS] = I_OFFLINE
                         elif kit["onLineStr"] == "4":
-                            self._attr_extra_state_attributes[I_STATUS] = "Stock"
+                            self._attr_extra_state_attributes[I_STATUS] = I_STOCK
                         elif kit["onLineStr"] == "4":
-                            self._attr_extra_state_attributes[I_STATUS] = "History"
+                            self._attr_extra_state_attributes[I_STATUS] = I_HISTORY
                         else:
-                            self._attr_extra_state_attributes[I_STATUS] = "Unknown"
+                            self._attr_extra_state_attributes[I_STATUS] = P_UNKNOWN
 
                         self._attr_extra_state_attributes[I_CURRENT_POWER] = kit[
                             "powernow"
@@ -826,19 +849,19 @@ class ESolarInverterEnergyTotal(ESolarSensor):
                             if kit["storeDevicePower"]["batteryDirection"] == 0:
                                 self._attr_extra_state_attributes[
                                     B_DIRECTION
-                                ] = "Standby"
+                                ] = B_DIR_STB
                             elif kit["storeDevicePower"]["batteryDirection"] == 1:
                                 self._attr_extra_state_attributes[
                                     B_DIRECTION
-                                ] = "Discharging"
+                                ] = B_DIR_DIS
                             elif kit[0]["storeDevicePower"]["batteryDirection"] == -1:
                                 self._attr_extra_state_attributes[
                                     B_DIRECTION
-                                ] = "Charging"
+                                ] = B_DIR_CH
                             else:
                                 self._attr_extra_state_attributes[
                                     B_DIRECTION
-                                ] = "Unknown"
+                                ] = P_UNKNOWN
                 if "beanList" in plant:
                     for bean in plant["beanList"]:
                         if bean["devicesn"] == self.inverter_sn:

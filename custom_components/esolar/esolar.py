@@ -9,7 +9,7 @@ BASE_URL = "https://fopapp.saj-electric.com/sajAppApi/api"
 BASE_URL_WEB = "https://fop.saj-electric.com/saj"
 WEB_TIMEOUT = 10
 
-BASIC_TEST = False
+BASIC_TEST = True
 DEBUG_PRINT = False
 # Use "R5", "Robbie"
 TEST_SYSTEM = "Robbie"
