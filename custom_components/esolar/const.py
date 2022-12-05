@@ -3,7 +3,7 @@ from typing import Final
 
 DOMAIN = "esolar"
 CONF_MONITORED_SITES = "monitored_sites"
-CONF_UPDATE_INTERVAL = 1
+CONF_UPDATE_INTERVAL = 5
 ATTRIBUTION = "Data provided by SAJ eSolar"
 MANUFACTURER = "SAJ"
 
