@@ -2,9 +2,10 @@
 This integration uses cloud polling from the SAJ eSolar portal using reverse engineered private API.
 
 # Installation
-## HACS
+### HACS
 HACS installation is not yet supported.
-## Manual
+
+### Manual
 - Copy directory `custom_components/esolar` to your `<config dir>/custom_components` directory.
 - Restart Home-Assistant.
 
