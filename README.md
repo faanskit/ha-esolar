@@ -16,7 +16,11 @@ These attributes can be fetched by implementing a template sensor using jinja2. 
 
 # Installation
 ### HACS
-HACS installation is not yet supported.
+1. Have HACS installed, this will allow you to easily update
+2. Add https://github.com/faanskit/ha-esolar as a custom repository as Type: Integration
+3. Click install under "SAJ eSolar Air" in the Integration tab
+4. Restart HA
+5. Enable the integration
 
 ### Manual
 - Copy directory `custom_components/esolar` to your `<config dir>/custom_components` directory.
