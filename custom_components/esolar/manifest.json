@@ -1,9 +1,10 @@
 {
-  "domain": "esolar",
+  "domain": "saj_esolar_air",
   "name": "eSolar",
   "version": "0.0.2",
   "config_flow": true,
-  "documentation": "https://www.home-assistant.io/integrations/esolar",
+  "issue_tracker": "https://github.com/faanskit/ha-esolar/issues",
+  "documentation": "https://github.com/faanskit/ha-esolar#readme",
   "requirements": [],
   "ssdp": [],
   "zeroconf": [],
