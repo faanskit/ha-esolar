@@ -1,3 +1,5 @@
+[![made-with-python](https://img.shields.io/badge/Made%20with-Python-1f425f.svg)](https://www.python.org/) [![Donate](https://img.shields.io/badge/Donate-PayPal-green.svg)](https://www.paypal.me/faanskit/) [![Donate](https://img.shields.io/badge/Donate-BuyMeCoffe-green.svg)](https://www.buymeacoffee.com/faanskit)
+
 # Home Assistant SAJ eSolar Custom Integration
 This integration uses cloud polling from the SAJ eSolar portal using a reverse engineered private API. 
 Thanks to [SAJeSolar](https://github.com/djansen1987/SAJeSolar) for inspiration.
@@ -83,8 +85,4 @@ template:
           {{state_attr('sensor.inverter_ass111111111111111_energy_total', 'Battery Direction')}}
 ```
 # Donations
-**Buy me a coffee:** <br />
-[![Buymeacoffee](https://www.buymeacoffee.com/assets/img/bmc-meta-new/new/apple-icon-120x120.png)](https://www.buymeacoffee.com/faanskit)
-
-**Paypal:** <br />
-[![Donate](https://www.paypalobjects.com/webstatic/mktg/logo/pp_cc_mark_74x46.jpg)](https://paypal.me/faanskit)
+[![Buymeacoffee](https://www.buymeacoffee.com/assets/img/bmc-meta-new/new/apple-icon-120x120.png)](https://www.buymeacoffee.com/faanskit) [![Paypal](https://www.paypalobjects.com/webstatic/mktg/logo/pp_cc_mark_74x46.jpg)](https://paypal.me/faanskit)
