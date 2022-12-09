@@ -1,5 +1,13 @@
 # Home Assistant SAJ eSolar Custom Integration
-This integration uses cloud polling from the SAJ eSolar portal using reverse engineered private API.
+This integration uses cloud polling from the SAJ eSolar portal using a reverse engineered private API. 
+Thanks to [SAJeSolar](https://github.com/djansen1987/SAJeSolar) for inspiration.
+
+
+The focus on this integration is to reduce the amount of sensors published while at the same time maximize the information available and provide them as attributes. As an example, the H1 Inverter Power sensor has 50 information elements (15 x 3 + 5) published as attributes. This is a bit against the nature of Home Assistant development, but given a system comprising two plants, one R5 and two H1 - the amount of sensors would easly be in the hundreds. Therefore, this integration aims to publish only what is relevant as sensors.
+
+![alt text](https://github.com/faanskit/ha-esolar/blob/main/images/attributes.png)
+
+These attributes can be fetched by implementing a template sensor using jinja2. An example of that can be found in the advanced section below.
 
 # Installation
 ### HACS
@@ -62,3 +70,21 @@ The system will now reload and add two new sensors per inverter (Energy Total an
 When the system is fully set-up it can look something like this
 
 ![alt text](https://github.com/faanskit/ha-esolar/blob/main/images/all_done.png)
+
+# Advanced
+### Creating a template sensor based on sensor attributes.
+The below example will fetch the battery direction from the inverter energy total sensor and publish that as a new sensor
+```
+template:
+  - sensor:
+      - name: "Battery Direction"
+        unique_id: inverter_ass111111111111111_energy_total_battery_direction
+        state: >
+          {{state_attr('sensor.inverter_ass111111111111111_energy_total', 'Battery Direction')}}
+```
+# Donations
+**Buy me a coffee:** <br />
+[![Buymeacoffee](https://www.buymeacoffee.com/assets/img/bmc-meta-new/new/apple-icon-120x120.png)](https://www.buymeacoffee.com/faanskit)
+
+**Paypal:** <br />
+[![Donate](https://www.paypalobjects.com/webstatic/mktg/logo/pp_cc_mark_74x46.jpg)](https://paypal.me/faanskit)
