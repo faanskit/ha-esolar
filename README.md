@@ -32,7 +32,7 @@ Following a succesful installation, a device per plant will be created
 
 You can see that a number of devices and entites has been created at the SAJ eSolar integration
 
-![alt text](https://github.com/faanskit/ha-esolar/blob/main/images/setup_done_1.PND)
+![alt text](https://github.com/faanskit/ha-esolar/blob/main/images/setup_done_1.PNG)
 
 If you click on the devices, you can see this also in the Devices section
 
