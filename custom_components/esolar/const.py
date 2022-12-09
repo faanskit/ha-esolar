@@ -1,7 +1,7 @@
 """Constants for the eSolar integration."""
 from typing import Final
 
-DOMAIN = "esolar"
+DOMAIN = "saj_esolar_air"
 CONF_MONITORED_SITES = "monitored_sites"
 CONF_UPDATE_INTERVAL = 5
 ATTRIBUTION = "Data provided by SAJ eSolar"
