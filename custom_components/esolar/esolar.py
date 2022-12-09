@@ -11,14 +11,12 @@ WEB_TIMEOUT = 10
 
 BASIC_TEST = False
 DEBUG_PRINT = False
-# Use "R5", "Robbie"
-TEST_SYSTEM = "Robbie"
+# Use "R5", "H1"
+TEST_SYSTEM = "H1"
 if BASIC_TEST:
     from .esolar_static_test import (
-        web_get_plant_static_r5,
-        get_esolar_data_static_r5,
-        web_get_plant_static_robbie,
-        get_esolar_data_static_robbie,
+        web_get_plant_static_h1_r5,
+        get_esolar_data_static_h1_r5,
     )
 
 
@@ -45,8 +43,8 @@ def add_years(source_date, years):
 def get_esolar_data(username, password, plant_list=None, use_pv_grid_attributes=True):
     """SAJ eSolar Data Update"""
     if BASIC_TEST:
-        if TEST_SYSTEM == "Robbie":
-            return get_esolar_data_static_robbie(
+        if TEST_SYSTEM == "H1":
+            return get_esolar_data_static_h1_r5(
                 username, password, plant_list, use_pv_grid_attributes
             )
 
@@ -121,8 +119,8 @@ def web_get_plant(session, requested_plant_list=None):
         raise ValueError("Missing session identifier trying to obain plants")
 
     if BASIC_TEST:
-        if TEST_SYSTEM == "Robbie":
-            return web_get_plant_static_robbie()
+        if TEST_SYSTEM == "H1":
+            return web_get_plant_static_h1_r5()
         return web_get_plant_static_r5()
 
     try:
