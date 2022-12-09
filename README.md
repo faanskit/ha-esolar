@@ -57,7 +57,9 @@ Your home screen will now have a number of new entities depending on your system
 
 ## Configuration
 If you need more sensor and more detailed attributes in the sensors, you can configure the integration as follows
-Go to Settings / Devices & Services / SAL eSola. Click CONFIGURE.
+
+Go to Settings / Devices & Services / SAL eSolar. Click CONFIGURE.
+
 Select if you want additional inverter sensors and if you want Photovoltaics and Grid attributes.
 Take note that the Photovoltaics and Grid attributes will pull additional data from the SAJ servers.
 
