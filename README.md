@@ -31,7 +31,7 @@ You can see that a number of devices and entites has been created at the SAJ eSo
 If you click on the devices, you can see this also in the Devices section
 ![alt text](https://github.com/faanskit/ha-esolar/blob/main/images/setup_done_2.png)
 
-Your home screen will now have a number of new entities depending on your system. A R5 system will have two sensors (Status and Energy) and a H1 System will have five sensors (Status, Sell Energy, Buy, Energy, Charge Energy, Discharge Energy, )
+Your home screen will now have a number of new entities depending on your system. A R5 system will have two sensors (Status and Energy) and a H1 System will have five sensors (Status, Sell Energy, Buy, Energy, Charge Energy, Discharge Energy)
 ![alt text](https://github.com/faanskit/ha-esolar/blob/main/images/setup_done_3.png)
 
 ## Configuration
