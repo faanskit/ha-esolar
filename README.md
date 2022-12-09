@@ -4,8 +4,11 @@
 This integration uses cloud polling from the SAJ eSolar portal using a reverse engineered private API. 
 Thanks to [SAJeSolar](https://github.com/djansen1987/SAJeSolar) for inspiration.
 
+This integration today support SAJ R5 and SAJ H1. SAJ SEC has not yet been implemented mainly due to lack of access to a SEC system,
 
-The focus on this integration is to reduce the amount of sensors published while at the same time maximize the information available and provide them as attributes. As an example, the H1 Inverter Power sensor has 50 information elements (15 x 3 + 5) published as attributes. This is a bit against the nature of Home Assistant development, but given a system comprising two plants, one R5 and two H1 - the amount of sensors would easly be in the hundreds. Therefore, this integration aims to publish only what is relevant as sensors.
+The focus on this integration is to reduce the amount of sensors published while at the same time maximize the information available and provide them as attributes. 
+
+As an example, the H1 Inverter Power sensor has 50 information elements (15 x 3 + 5) published as attributes. This is a bit against the nature of Home Assistant development, but given a system comprising two plants, one R5 and two H1 - the amount of sensors would easly be in the hundreds. Therefore, this integration aims to publish only what is relevant as sensors.
 
 ![alt text](https://github.com/faanskit/ha-esolar/blob/main/images/attributes.png)
 
