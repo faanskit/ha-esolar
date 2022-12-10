@@ -285,6 +285,8 @@ class ESolarSensorPlant(ESolarSensor):
         """Get the latest data and updates the states."""
         for plant in self._coordinator.data["plantList"]:
             if plant["plantname"] == self._plant_name:
+                # Setup static attributes
+                self._attr_available = True
                 self._attr_extra_state_attributes[P_NAME] = plant["plantname"]
                 self._attr_extra_state_attributes[P_UID] = plant["plantuid"]
                 self._attr_extra_state_attributes[P_ADR] = (
@@ -300,21 +302,8 @@ class ESolarSensorPlant(ESolarSensor):
                     self._attr_extra_state_attributes[P_TYPE] = P_TYPE_AC_COUPLING
                 self._attr_extra_state_attributes[P_POWER] = float(plant["systempower"])
                 self._attr_extra_state_attributes[P_CURRENCY] = plant["currency"]
-                self._attr_extra_state_attributes[P_TOTAL_E] = plant["totalElectricity"]
-                self._attr_extra_state_attributes[P_CO2] = plant["plantDetail"][
-                    "totalReduceCo2"
-                ]
-                self._attr_extra_state_attributes[P_TREES] = plant["plantDetail"][
-                    "totalPlantTreeNum"
-                ]
-                # Income only relevant for type 1 (R5)
-                if (plant["plantDetail"]["type"]) == 1:
-                    self._attr_extra_state_attributes[P_INCOME] = plant["plantDetail"][
-                        "income"
-                    ]
-                else:
-                    self._attr_extra_state_attributes[P_INCOME] = None
 
+                # Setup state
                 if plant["runningState"] == 1:
                     self._attr_native_value = "Normal"
                 elif plant["runningState"] == 2:
@@ -323,13 +312,28 @@ class ESolarSensorPlant(ESolarSensor):
                     self._attr_native_value = "Offline"
                 else:
                     self._attr_native_value = None
-                self._attr_available = True
 
     @property
     def native_value(self) -> str | None:
         """Return sensor state."""
         for plant in self._coordinator.data["plantList"]:
             if plant["plantname"] == self._plant_name:
+                # Setup dynamic attributes
+                if (plant["plantDetail"]["type"]) == 0:
+                    self._attr_extra_state_attributes[P_INCOME] = plant["plantDetail"][
+                        "income"
+                    ]
+                else:
+                    self._attr_extra_state_attributes[P_INCOME] = None
+                self._attr_extra_state_attributes[P_CO2] = plant["plantDetail"][
+                    "totalReduceCo2"
+                ]
+                self._attr_extra_state_attributes[P_TREES] = plant["plantDetail"][
+                    "totalPlantTreeNum"
+                ]
+                self._attr_extra_state_attributes[P_TOTAL_E] = plant["totalElectricity"]
+
+                # Setup state
                 if plant["runningState"] == 1:
                     value = "Normal"
                 elif plant["runningState"] == 2:
@@ -339,33 +343,6 @@ class ESolarSensorPlant(ESolarSensor):
                 else:
                     value = None
 
-                self._attr_extra_state_attributes[P_NAME] = plant["plantname"]
-                self._attr_extra_state_attributes[P_UID] = plant["plantuid"]
-                self._attr_extra_state_attributes[P_ADR] = (
-                    plant["address"] + " " + plant["country"]
-                )
-                if plant["type"] == 0:
-                    self._attr_extra_state_attributes[P_TYPE] = P_TYPE_GRID
-                if plant["type"] == 1:
-                    self._attr_extra_state_attributes[P_TYPE] = P_TYPE_STORAGE
-                if plant["type"] == 2:
-                    self._attr_extra_state_attributes[P_TYPE] = P_TYPE_BLEND
-                if plant["type"] == 3:
-                    self._attr_extra_state_attributes[P_TYPE] = P_TYPE_AC_COUPLING
-                self._attr_extra_state_attributes[P_POWER] = float(plant["systempower"])
-                self._attr_extra_state_attributes[P_CURRENCY] = plant["currency"]
-                if (plant["plantDetail"]["type"]) == 1:
-                    self._attr_extra_state_attributes[P_INCOME] = plant["plantDetail"][
-                        "income"
-                    ]
-                else:
-                    self._attr_extra_state_attributes[P_INCOME] = None
-                self._attr_extra_state_attributes[P_CO2] = plant["plantDetail"][
-                    "totalReduceCo2"
-                ]
-                self._attr_extra_state_attributes[P_TREES] = plant["plantDetail"][
-                    "totalPlantTreeNum"
-                ]
         return value
 
 
@@ -403,33 +380,20 @@ class ESolarSensorPlantTotalEnergy(ESolarSensor):
         """Get the latest data and updates the states."""
         for plant in self._coordinator.data["plantList"]:
             if plant["plantname"] == self._plant_name:
+                # Setup static attributes
+                self._attr_available = True
                 self._attr_extra_state_attributes[P_NAME] = plant["plantname"]
                 self._attr_extra_state_attributes[P_UID] = plant["plantuid"]
-                self._attr_extra_state_attributes[P_TODAY_E] = float(
-                    plant["todayElectricity"]
-                )
-                self._attr_extra_state_attributes[P_CURRENT_POWER] = float(
-                    plant["nowPower"]
-                )
-                if plant["type"] == 0:
-                    peak_power = 0
-                    for inverter in plant["peakList"]:
-                        peak_power += inverter["peakPower"]
-                    self._attr_extra_state_attributes[P_PEAK_POWER] = float(peak_power)
-                else:
-                    self._attr_extra_state_attributes[P_PEAK_POWER] = None
+
+                # Setup state
                 self._attr_native_value = float(plant["totalElectricity"])
-                self._attr_available = True
 
     @property
     def native_value(self) -> str | None:
         """Return sensor state."""
         for plant in self._coordinator.data["plantList"]:
             if plant["plantname"] == self._plant_name:
-                value = float(plant["totalElectricity"])
-
-                self._attr_extra_state_attributes[P_NAME] = plant["plantname"]
-                self._attr_extra_state_attributes[P_UID] = plant["plantuid"]
+                # Setup dynamic attributes
                 self._attr_extra_state_attributes[P_TODAY_E] = float(
                     plant["todayElectricity"]
                 )
@@ -443,6 +407,10 @@ class ESolarSensorPlantTotalEnergy(ESolarSensor):
                     self._attr_extra_state_attributes[P_PEAK_POWER] = float(peak_power)
                 else:
                     self._attr_extra_state_attributes[P_PEAK_POWER] = None
+
+                # Setup state
+                value = float(plant["totalElectricity"])
+
         return value
 
 
@@ -477,16 +445,20 @@ class ESolarSensorPlantBatteryBuyEnergy(ESolarSensor):
         """Get the latest data and updates the states."""
         for plant in self._coordinator.data["plantList"]:
             if plant["plantname"] == self._plant_name:
+                # Setup static attributes
+                self._attr_available = True
                 self._attr_extra_state_attributes[P_NAME] = plant["plantname"]
                 self._attr_extra_state_attributes[P_UID] = plant["plantuid"]
+
+                # Setup state
                 self._attr_native_value = float(plant["plantDetail"]["totalBuyElec"])
-                self._attr_available = True
 
     @property
     def native_value(self) -> str | None:
         """Return sensor state."""
         for plant in self._coordinator.data["plantList"]:
             if plant["plantname"] == self._plant_name:
+                # Setup state
                 value = float(plant["plantDetail"]["totalBuyElec"])
 
         return value
@@ -523,16 +495,20 @@ class ESolarSensorPlantBatterySellEnergy(ESolarSensor):
         """Get the latest data and updates the states."""
         for plant in self._coordinator.data["plantList"]:
             if plant["plantname"] == self._plant_name:
+                # Setup static attributes
+                self._attr_available = True
                 self._attr_extra_state_attributes[P_NAME] = plant["plantname"]
                 self._attr_extra_state_attributes[P_UID] = plant["plantuid"]
+
+                # Setup state
                 self._attr_native_value = float(plant["plantDetail"]["totalSellElec"])
-                self._attr_available = True
 
     @property
     def native_value(self) -> str | None:
         """Return sensor state."""
         for plant in self._coordinator.data["plantList"]:
             if plant["plantname"] == self._plant_name:
+                # Setup state
                 value = float(plant["plantDetail"]["totalSellElec"])
 
         return value
@@ -569,19 +545,24 @@ class ESolarSensorPlantBatteryChargeEnergy(ESolarSensor):
         """Get the latest data and updates the states."""
         for plant in self._coordinator.data["plantList"]:
             if plant["plantname"] == self._plant_name:
+                # Setup static attributes
+                self._attr_available = True
                 self._attr_extra_state_attributes[P_NAME] = plant["plantname"]
                 self._attr_extra_state_attributes[P_UID] = plant["plantuid"]
+
+                # Setup state
                 charge = float(0)
                 if "beanList" in plant:
                     for bean in plant["beanList"]:
                         charge += float(bean["chargeElec"])
-                self._attr_available = True
+                self._attr_native_value = charge
 
     @property
     def native_value(self) -> str | None:
         """Return sensor state."""
         for plant in self._coordinator.data["plantList"]:
             if plant["plantname"] == self._plant_name:
+                # Setup state
                 charge = float(0)
                 if "beanList" in plant:
                     for bean in plant["beanList"]:
@@ -622,20 +603,24 @@ class ESolarSensorPlantBatteryDischargeEnergy(ESolarSensor):
         """Get the latest data and updates the states."""
         for plant in self._coordinator.data["plantList"]:
             if plant["plantname"] == self._plant_name:
+                # Setup static attributes
+                self._attr_available = True
                 self._attr_extra_state_attributes[P_NAME] = plant["plantname"]
                 self._attr_extra_state_attributes[P_UID] = plant["plantuid"]
+
+                # Setup state
                 discharge = float(0)
                 if "beanList" in plant:
                     for bean in plant["beanList"]:
                         discharge += float(bean["dischargeElec"])
                 self._attr_native_value = discharge
-                self._attr_available = True
 
     @property
     def native_value(self) -> str | None:
         """Return sensor state."""
         for plant in self._coordinator.data["plantList"]:
             if plant["plantname"] == self._plant_name:
+                # Setup state
                 discharge = float(0)
                 if "beanList" in plant:
                     for bean in plant["beanList"]:
@@ -661,7 +646,6 @@ class ESolarSensorPlantBatterySoC(ESolarSensor):
         self._device_name = plant_name
         self._device_model = PLANT_MODEL
 
-        # self._attr_icon = ICON_POWER
         self._attr_name = f"Plant {self._plant_name} State Of Charge"
         self._attr_native_unit_of_measurement = PERCENTAGE
         self._attr_device_class = SensorDeviceClass.BATTERY
@@ -678,8 +662,12 @@ class ESolarSensorPlantBatterySoC(ESolarSensor):
         available_power = 0
         for plant in self._coordinator.data["plantList"]:
             if plant["plantname"] == self._plant_name:
+                # Setup static attributes
+                self._attr_available = True
                 self._attr_extra_state_attributes[P_NAME] = plant["plantname"]
                 self._attr_extra_state_attributes[P_UID] = plant["plantuid"]
+
+                # Setup state
                 for inverter in plant["plantDetail"]["snList"]:
                     for kit in plant["kitList"]:
                         if inverter == kit["devicesn"]:
@@ -692,9 +680,6 @@ class ESolarSensorPlantBatterySoC(ESolarSensor):
 
                 if installed_power > 0:
                     self._attr_native_value = float(available_power / installed_power)
-                    self._attr_available = True
-                else:
-                    self._attr_available = False
 
     @property
     def native_value(self) -> str | None:
@@ -703,6 +688,7 @@ class ESolarSensorPlantBatterySoC(ESolarSensor):
         available_power = 0
         for plant in self._coordinator.data["plantList"]:
             if plant["plantname"] == self._plant_name:
+                # Setup state
                 for inverter in plant["plantDetail"]["snList"]:
                     for kit in plant["kitList"]:
                         if inverter == kit["devicesn"]:
@@ -766,6 +752,8 @@ class ESolarInverterEnergyTotal(ESolarSensor):
         """Get the latest data and updates the states."""
         for plant in self._coordinator.data["plantList"]:
             if plant["plantname"] == self._plant_name:
+                # Setup static attributes
+                self._attr_available = True
                 self._attr_extra_state_attributes[P_NAME] = plant["plantname"]
                 self._attr_extra_state_attributes[P_UID] = plant["plantuid"]
                 for kit in plant["kitList"]:
@@ -786,74 +774,11 @@ class ESolarInverterEnergyTotal(ESolarSensor):
                         self._attr_extra_state_attributes[I_SN] = kit["devicesn"]
                         self._attr_extra_state_attributes[I_PC] = kit["devicepc"]
                         self._attr_extra_state_attributes[I_DB] = kit["displayfw"]
-                        # self._attr_extra_state_attributes[I_CTR] = kit["slavemcufw"]
                         self._attr_extra_state_attributes[I_CTR] = kit["mastermcufw"]
                         self._attr_extra_state_attributes[I_MOD_SN] = kit["kitSn"]
-                        self._attr_extra_state_attributes[I_TODAY_E] = float(
-                            kit["todaySellEnergy"]
-                        )
-                        self._attr_extra_state_attributes[I_MONTH_E] = float(
-                            kit["monthSellEnergy"]
-                        )
-                        self._attr_extra_state_attributes[I_TOTAL_E] = float(
-                            kit["totalSellEnergy"]
-                        )
-                        if kit["onLineStr"] == "1":
-                            self._attr_extra_state_attributes[I_STATUS] = I_NORMAL
-                        elif kit["onLineStr"] == "2":
-                            self._attr_extra_state_attributes[I_STATUS] = I_ALARM
-                        elif kit["onLineStr"] == "3":
-                            self._attr_extra_state_attributes[I_STATUS] = I_OFFLINE
-                        elif kit["onLineStr"] == "4":
-                            self._attr_extra_state_attributes[I_STATUS] = I_STOCK
-                        elif kit["onLineStr"] == "5":
-                            self._attr_extra_state_attributes[I_STATUS] = I_HISTORY
-                        else:
-                            self._attr_extra_state_attributes[I_STATUS] = P_UNKNOWN
 
-                        self._attr_extra_state_attributes[I_CURRENT_POWER] = kit[
-                            "powernow"
-                        ]
-
-                        if kit["type"] == 2:
-                            if kit["storeDevicePower"]["batteryDirection"] == 0:
-                                self._attr_extra_state_attributes[
-                                    B_DIRECTION
-                                ] = B_DIR_STB
-                            elif kit["storeDevicePower"]["batteryDirection"] == 1:
-                                self._attr_extra_state_attributes[
-                                    B_DIRECTION
-                                ] = B_DIR_DIS
-                            elif kit["storeDevicePower"]["batteryDirection"] == -1:
-                                self._attr_extra_state_attributes[
-                                    B_DIRECTION
-                                ] = B_DIR_CH
-                            else:
-                                self._attr_extra_state_attributes[
-                                    B_DIRECTION
-                                ] = P_UNKNOWN
-
+                        # Setup state
                         self._attr_native_value = float(kit["totalSellEnergy"])
-
-                if "beanList" in plant:
-                    for bean in plant["beanList"]:
-                        if bean["devicesn"] == self.inverter_sn:
-                            self._attr_extra_state_attributes[B_PVELEC] = bean["pvElec"]
-                            self._attr_extra_state_attributes[B_USELEC] = bean[
-                                "useElec"
-                            ]
-                            self._attr_extra_state_attributes[B_BUYELEC] = bean[
-                                "buyElec"
-                            ]
-                            self._attr_extra_state_attributes[B_SELLELEC] = bean[
-                                "sellElec"
-                            ]
-                            self._attr_extra_state_attributes[B_BUY_RATE] = bean[
-                                "buyRate"
-                            ]
-                            self._attr_extra_state_attributes[B_SELL_RATE] = bean[
-                                "sellRate"
-                            ]
 
     @property
     def native_value(self) -> float | None:
@@ -863,17 +788,10 @@ class ESolarInverterEnergyTotal(ESolarSensor):
             if plant["plantname"] == self._plant_name:
                 for kit in plant["kitList"]:
                     if kit["devicesn"] == self.inverter_sn:
+                        # Setup state
                         value = float(kit["totalSellEnergy"])
-                        if kit["type"] == 0:
-                            self._attr_extra_state_attributes[I_TYPE] = P_TYPE_ONGRID
-                        elif kit["type"] == 1:
-                            self._attr_extra_state_attributes[I_TYPE] = P_TYPE_STORAGE
-                        elif kit["type"] == 2:
-                            self._attr_extra_state_attributes[
-                                I_TYPE
-                            ] = P_TYPE_AC_COUPLING
-                        else:
-                            self._attr_extra_state_attributes[I_TYPE] = P_UNKNOWN
+
+                        # Setup dynamic attributes
                         self._attr_extra_state_attributes[I_TODAY_E] = float(
                             kit["todaySellEnergy"]
                         )
@@ -989,14 +907,21 @@ class ESolarInverterPower(ESolarSensor):
                 I_MODEL: None,
                 I_SN: None,
             }
+
+    async def async_update(self) -> None:
+        """Get the latest data and updates the states."""
         for plant in self._coordinator.data["plantList"]:
             if plant["plantname"] == self._plant_name:
+                # Setup static attributes
+                self._attr_available = True
                 self._attr_extra_state_attributes[P_NAME] = plant["plantname"]
                 self._attr_extra_state_attributes[P_UID] = plant["plantuid"]
                 for kit in plant["kitList"]:
                     if kit["devicesn"] == self.inverter_sn:
                         self._attr_extra_state_attributes[I_MODEL] = kit["devicetype"]
                         self._attr_extra_state_attributes[I_SN] = kit["devicesn"]
+
+                        # Setup state
                         self._attr_native_value = float(kit["powernow"])
 
     @property
@@ -1005,9 +930,9 @@ class ESolarInverterPower(ESolarSensor):
         value = None
         for plant in self._coordinator.data["plantList"]:
             if plant["plantname"] == self._plant_name:
+                # Setup dynamic attributes
                 for kit in plant["kitList"]:
                     if kit["devicesn"] == self.inverter_sn:
-                        value = float(kit["powernow"])
                         if self.use_pv_grid_attributes:
                             if kit["onLineStr"] == "1":
                                 self._attr_extra_state_attributes[I_PV_VOL_PV] = [
@@ -1029,11 +954,6 @@ class ESolarInverterPower(ESolarSensor):
                                     kit["findRawdataPageList"]["rGridCurr"],
                                     kit["findRawdataPageList"]["sGridCurr"],
                                     kit["findRawdataPageList"]["tGridCurr"],
-                                ]
-                                self._attr_extra_state_attributes[I_G_FREQ_L] = [
-                                    kit["findRawdataPageList"]["rGridFreq"],
-                                    kit["findRawdataPageList"]["sGridFreq"],
-                                    kit["findRawdataPageList"]["tGridFreq"],
                                 ]
                                 self._attr_extra_state_attributes[I_G_FREQ_L] = [
                                     kit["findRawdataPageList"]["rGridFreq"],
@@ -1139,6 +1059,9 @@ class ESolarInverterPower(ESolarSensor):
                                     None,
                                 ]
 
+                        # Setup state
+                        value = float(kit["powernow"])
+
         return value
 
 
@@ -1176,19 +1099,30 @@ class ESolarInverterBatterySoC(ESolarSensor):
             I_MODEL: None,
             I_SN: None,
         }
+
+    async def async_update(self) -> None:
+        """Get the latest data and updates the states."""
         for plant in self._coordinator.data["plantList"]:
             if plant["plantname"] == self._plant_name:
+                # Setup static attributes
+                self._attr_available = True
                 self._attr_extra_state_attributes[P_NAME] = plant["plantname"]
                 self._attr_extra_state_attributes[P_UID] = plant["plantuid"]
                 for kit in plant["kitList"]:
                     if kit["devicesn"] == self.inverter_sn:
                         self._attr_extra_state_attributes[I_MODEL] = kit["devicetype"]
                         self._attr_extra_state_attributes[I_SN] = kit["devicesn"]
-                        self._attr_native_value = None
+
+                        # Setup state
+                        if kit["onLineStr"] == "1":
+                            self._attr_native_value = kit["storeDevicePower"][
+                                "batEnergyPercent"
+                            ]
 
     @property
     def native_value(self) -> float | None:
         """Return sensor state."""
+        # Setup state
         value = None
         for plant in self._coordinator.data["plantList"]:
             if plant["plantname"] == self._plant_name:
