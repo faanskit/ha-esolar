@@ -38,7 +38,7 @@ class ESolarResponse(TypedDict):
 
 async def update_listener(hass, entry):
     """Handle options update."""
-    print(entry.options)
+    _LOGGER.debug(entry.options)
 
 
 async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
@@ -121,6 +121,12 @@ def get_data(
     use_pv_grid_attributes = options.get(CONF_PV_GRID_DATA)
 
     try:
+        _LOGGER.debug(
+            "Fetching data with username %s, for plants %s with pv attributes set to %s",
+            username,
+            plants,
+            use_pv_grid_attributes,
+        )
         plant_info = get_esolar_data(username, password, plants, use_pv_grid_attributes)
 
     except requests.exceptions.HTTPError as errh:
