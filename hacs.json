@@ -2,5 +2,5 @@
     "name": "SAJ eSolar Air",
     "homeassistant": "2022.11.1",
     "render_readme": true,
-    "country": ["SE", "EN"]
+    "country": ["ALL"]
   }
