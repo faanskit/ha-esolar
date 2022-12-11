@@ -22,18 +22,11 @@ _LOGGER = logging.getLogger(__name__)
 PLATFORMS: list[Platform] = [Platform.SENSOR]
 
 
-class ESolarData(TypedDict):
-    """Data field."""
-
-    nowPower: int
-    todayElectricity: int
-
-
 class ESolarResponse(TypedDict):
     """API response."""
 
     status: str
-    data: ESolarData
+    plantList: dict[str, Any]
 
 
 async def update_listener(hass, entry):

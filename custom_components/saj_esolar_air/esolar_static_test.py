@@ -1,8 +1,8 @@
-"""ESolar Basic Test Data"""
+"""ESolar Basic Test Data."""
 
 
 def web_get_plant_static_h1_r5():
-    """SAJ eSolar Data Update - STATIC PLANT H1 + R5"""
+    """SAJ eSolar Data Update - STATIC PLANT H1 + R5."""
     plant_info = {
         "pageNo": 1,
         "pageSize": 10,
@@ -74,7 +74,7 @@ def web_get_plant_static_h1_r5():
 def get_esolar_data_static_h1_r5(
     username, password, plant_list, use_pv_grid_attributes
 ):
-    """SAJ eSolar Data Update - STATIC #3 TEST VERSION"""
+    """SAJ eSolar Data Update - STATIC #3 TEST VERSION."""
     plant_info = {
         "pageNo": 1,
         "pageSize": 10,

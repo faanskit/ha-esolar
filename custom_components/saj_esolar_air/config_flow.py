@@ -2,23 +2,23 @@
 from __future__ import annotations
 
 import logging
-import requests
-
-import voluptuous as vol
 from typing import Any
 
+import requests
+import voluptuous as vol
+
 from homeassistant import config_entries
+from homeassistant.const import CONF_PASSWORD, CONF_USERNAME
 from homeassistant.core import HomeAssistant, callback
 from homeassistant.data_entry_flow import FlowResult
 from homeassistant.exceptions import HomeAssistantError
 from homeassistant.helpers import config_validation as cv
-from homeassistant.const import CONF_USERNAME, CONF_PASSWORD
 
 from .const import (
-    DOMAIN,
-    CONF_MONITORED_SITES,
     CONF_INVERTER_SENSORS,
+    CONF_MONITORED_SITES,
     CONF_PV_GRID_DATA,
+    DOMAIN,
 )
 from .esolar import esolar_web_autenticate, web_get_plant
 
@@ -35,14 +35,14 @@ STEP_USER_DATA_SCHEMA = vol.Schema(
 
 
 class ESolarHub:
-    """SAJ eSolar configuration validations"""
+    """SAJ eSolar configuration validations."""
 
     def __init__(self) -> None:
         """Initialize."""
-        self.plant_list = {}
+        self.plant_list: dict[str, Any] = {}
 
     def auth_and_get_solar_plants(self, username: str, password: str) -> bool:
-        """Download and list available inverters"""
+        """Download and list availablse inverters."""
         try:
             session = esolar_web_autenticate(username, password)
             self.plant_list = web_get_plant(session).get("plantList")
@@ -62,7 +62,7 @@ class ESolarHub:
 
 
 async def validate_input(hass: HomeAssistant, data: dict[str, Any]) -> dict[str, Any]:
-    """Validate that the user input allows us to connect and fetch list of sites"""
+    """Validate that the user input allows us to connect and fetch list of sites."""
 
     hub = ESolarHub()
     if not await hass.async_add_executor_job(
@@ -80,14 +80,14 @@ class ConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
     VERSION = 1
 
     def __init__(self):
-        """Setup the config flow."""
+        """Set up the the config flow."""
         self.sites = {}
         self.data = {}
 
     async def async_step_user(
         self, user_input: dict[str, Any] | None = None
     ) -> FlowResult:
-        """Handle the initial step. Username and password"""
+        """Handle the initial step. Username and password."""
         if user_input is None:
             return self.async_show_form(
                 step_id="user", data_schema=STEP_USER_DATA_SCHEMA
@@ -128,7 +128,7 @@ class ConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
     async def async_step_sites(
         self, user_input: dict[str, Any] | None = None
     ) -> FlowResult:
-        """Handle the second step. Select which sites to use"""
+        """Handle the second step. Select which sites to use."""
 
         errors = {}
         if user_input is not None:

@@ -1,9 +1,10 @@
-"""ESolar Cloud Platform data fetchers"""
-import requests
+"""ESolar Cloud Platform data fetchers."""
+import calendar
 import datetime
 from datetime import timedelta
-import calendar
 import logging
+
+import requests
 
 _LOGGER = logging.getLogger(__name__)
 
@@ -15,13 +16,13 @@ BASIC_TEST = False
 VERBOSE_DEBUG = False
 if BASIC_TEST:
     from .esolar_static_test import (
-        web_get_plant_static_h1_r5,
         get_esolar_data_static_h1_r5,
+        web_get_plant_static_h1_r5,
     )
 
 
 def add_months(sourcedate, months):
-    """SAJ eSolar Helper Function - Adds a months to input"""
+    """SAJ eSolar Helper Function - Adds a months to input."""
     month = sourcedate.month - 1 + months
     year = sourcedate.year + month // 12
     month = month % 12 + 1
@@ -30,7 +31,7 @@ def add_months(sourcedate, months):
 
 
 def add_years(source_date, years):
-    """SAJ eSolar Helper Function - Adds a years to input"""
+    """SAJ eSolar Helper Function - Adds a years to input."""
     try:
         return source_date.replace(year=source_date.year + years)
     except ValueError:
@@ -41,7 +42,7 @@ def add_years(source_date, years):
 
 
 def get_esolar_data(username, password, plant_list=None, use_pv_grid_attributes=True):
-    """SAJ eSolar Data Update"""
+    """SAJ eSolar Data Update."""
     if BASIC_TEST:
         return get_esolar_data_static_h1_r5(
             username, password, plant_list, use_pv_grid_attributes
@@ -70,9 +71,7 @@ def get_esolar_data(username, password, plant_list=None, use_pv_grid_attributes=
 
 
 def esolar_web_autenticate(username, password):
-    """
-    Function to authenticate on SAJ's WEB Portal
-    """
+    """Authenticate the user to the SAJ's WEB Portal."""
     if BASIC_TEST:
         return True
 
@@ -107,9 +106,7 @@ def esolar_web_autenticate(username, password):
 
 
 def web_get_plant(session, requested_plant_list=None):
-    """
-    Function to retrieve platUid from WEB Portal, requires web_authenticate
-    """
+    """Retrieve the platUid from WEB Portal using web_authenticate."""
     if session is None:
         raise ValueError("Missing session identifier trying to obain plants")
 
@@ -161,9 +158,7 @@ def web_get_plant(session, requested_plant_list=None):
 
 
 def web_get_plant_details(session, plant_info):
-    """
-    Function to retrieve platUid from WEB Portal, requires web_authenticate
-    """
+    """Retrieve platUid from the WEB Portal using web_authenticate."""
     if session is None:
         raise ValueError("Missing session identifier trying to obain plants")
 
@@ -196,9 +191,7 @@ def web_get_plant_details(session, plant_info):
 
 
 def web_get_plant_detailed_chart(session, plant_info):
-    """
-    Function to retrieve kitList from WEB Portal, requires web_authenticate
-    """
+    """Retrieve the kitList from the WEB Portal with web_authenticate."""
     if session is None:
         raise ValueError("Missing session identifier trying to obain plants")
 
@@ -271,9 +264,7 @@ def web_get_plant_detailed_chart(session, plant_info):
 
 
 def web_get_device_page_list(session, plant_info, use_pv_grid_attributes):
-    """
-    Function to retrieve platUid from WEB Portal, requires web_authenticate
-    """
+    """Retrieve the platUid from the WEB Portal with web_authenticate."""
     if session is None:
         raise ValueError("Missing session identifier trying to obain plants")
 

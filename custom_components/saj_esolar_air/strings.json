@@ -7,21 +7,21 @@
           "password": "[%key:common::config_flow::data::password%]"
         },
         "description": "Please enter the username and password for your SAJ eSolar account",
-        "title":"SAJ eSolar"
+        "title": "SAJ eSolar"
       },
-      "sites":{
-        "data":{
+      "sites": {
+        "data": {
           "monitored_sites": "Sites"
         },
         "description": "Select sites to monitor",
-        "title":"SAJ eSolar"
+        "title": "SAJ eSolar"
       }
     },
     "error": {
       "cannot_connect": "[%key:common::config_flow::error::cannot_connect%]",
       "invalid_auth": "[%key:common::config_flow::error::invalid_auth%]",
       "unknown": "[%key:common::config_flow::error::unknown%]",
-      "no_sites": "[%key:common::config_flow::error::no_sites%]"
+      "no_sites": "No monitored sites selected"
     },
     "abort": {
       "already_configured": "[%key:common::config_flow::abort::already_configured_device%]"
@@ -36,7 +36,7 @@
         },
         "description": "Select options",
         "title": "SAJ eSolar"
-        }
+      }
     }
   }
 }

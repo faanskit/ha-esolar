@@ -11,7 +11,7 @@ from homeassistant.components.sensor import (
     SensorStateClass,
 )
 from homeassistant.config_entries import ConfigEntry
-from homeassistant.const import UnitOfEnergy, UnitOfPower, PERCENTAGE
+from homeassistant.const import PERCENTAGE, UnitOfEnergy, UnitOfPower
 from homeassistant.core import HomeAssistant
 from homeassistant.helpers.entity import DeviceInfo
 from homeassistant.helpers.entity_platform import AddEntitiesCallback
@@ -19,89 +19,89 @@ from homeassistant.helpers.update_coordinator import CoordinatorEntity
 
 from . import ESolarCoordinator
 from .const import (
+    B_B_LOAD,
+    B_BACKUP_POWER_W,
+    B_BUY_RATE,
+    B_BUYELEC,
+    B_CAPACITY,
+    B_CURRENT,
+    B_DIR_CH,
+    B_DIR_DIS,
+    B_DIR_STB,
+    B_DIRECTION,
+    B_EXPORT,
+    B_GRID_DIRECT,
+    B_GRID_POWER_VA,
+    B_GRID_POWER_W,
+    B_H_LOAD,
+    B_IMPORT,
+    B_ON_G_FREQ,
+    B_ON_G_POWER_W,
+    B_ON_G_VOLT,
+    B_OUT_CURR,
+    B_OUT_FREQ,
+    B_OUT_POWER_VA,
+    B_OUT_POWER_WATT,
+    B_OUT_VOLT,
+    B_POWER,
+    B_PVELEC,
+    B_SELL_RATE,
+    B_SELLELEC,
+    B_T_LOAD,
+    B_USELEC,
     CONF_INVERTER_SENSORS,
     CONF_MONITORED_SITES,
     CONF_PV_GRID_DATA,
     DOMAIN,
-    P_UNKNOWN,
+    G_POWER,
+    I_ALARM,
     I_CTR,
     I_CURRENT_POWER,
     I_DB,
     I_G_CURR_L,
     I_G_FREQ_L,
     I_G_VOL_L,
+    I_HISTORY,
     I_MOD_SN,
     I_MODEL,
     I_MONTH_E,
+    I_NORMAL,
+    I_OFFLINE,
     I_PC,
     I_PV_CURR_PV,
     I_PV_VOL_PV,
     I_SN,
     I_STATUS,
+    I_STOCK,
     I_TODAY_E,
     I_TOTAL_E,
     I_TYPE,
+    IO_DIRECTION,
+    IO_POWER,
     MANUFACTURER,
     P_ADR,
     P_CO2,
     P_CURRENCY,
     P_CURRENT_POWER,
     P_INCOME,
-    P_TOTAL_E,
     P_NAME,
     P_PEAK_POWER,
     P_POWER,
     P_TODAY_E,
+    P_TOTAL_E,
     P_TREES,
     P_TYPE,
     P_TYPE_AC_COUPLING,
     P_TYPE_BLEND,
     P_TYPE_GRID,
-    P_TYPE_STORAGE,
     P_TYPE_ONGRID,
+    P_TYPE_STORAGE,
     P_UID,
+    P_UNKNOWN,
     PLANT_MODEL,
-    B_DIRECTION,
-    B_PVELEC,
-    B_USELEC,
-    B_BUYELEC,
-    B_SELLELEC,
-    B_BUY_RATE,
-    B_SELL_RATE,
-    B_GRID_POWER_W,
-    B_GRID_POWER_VA,
-    B_OUT_VOLT,
-    B_OUT_CURR,
-    B_OUT_POWER_WATT,
-    B_OUT_POWER_VA,
-    B_OUT_FREQ,
-    B_BACKUP_POWER_W,
-    B_ON_G_VOLT,
-    B_ON_G_FREQ,
-    B_ON_G_POWER_W,
-    I_NORMAL,
-    I_ALARM,
-    I_OFFLINE,
-    I_STOCK,
-    I_HISTORY,
-    B_DIR_CH,
-    B_DIR_DIS,
-    B_DIR_STB,
-    B_CAPACITY,
-    B_GRID_DIRECT,
-    B_IMPORT,
-    B_EXPORT,
-    B_CURRENT,
-    B_POWER,
-    G_POWER,
-    S_POWER,
-    IO_POWER,
-    IO_DIRECTION,
-    PV_POWER,
     PV_DIRECTION,
-    B_T_LOAD,
-    B_H_LOAD,
-    B_B_LOAD,
+    PV_POWER,
+    S_POWER,
 )
 
 ICON_POWER = "mdi:solar-power"
@@ -124,117 +124,118 @@ async def async_setup_entry(
     use_inverter_sensors = entry.options.get(CONF_INVERTER_SENSORS)
     use_pv_grid_attributes = entry.options.get(CONF_PV_GRID_DATA)
 
-    for enabled_plant in my_plants:
-        for plant in coordinator.data["plantList"]:
-            if plant["plantname"] == enabled_plant:
-                _LOGGER.debug(
-                    "Setting up ESolarSensorPlant sensor for %s", plant["plantname"]
-                )
-                entities.append(
-                    ESolarSensorPlant(
-                        coordinator, plant["plantname"], plant["plantuid"]
-                    )
-                )
-                if plant["type"] == 0:
+    if my_plants is not None:
+        for enabled_plant in my_plants:
+            for plant in coordinator.data["plantList"]:
+                if plant["plantname"] == enabled_plant:
                     _LOGGER.debug(
-                        "Setting up ESolarSensorPlantTotalEnergy sensor for %s",
-                        plant["plantname"],
+                        "Setting up ESolarSensorPlant sensor for %s", plant["plantname"]
                     )
                     entities.append(
-                        ESolarSensorPlantTotalEnergy(
+                        ESolarSensorPlant(
                             coordinator, plant["plantname"], plant["plantuid"]
                         )
                     )
-                elif plant["type"] == 3:
-                    _LOGGER.debug(
-                        "Setting up ESolarSensorPlantBatterySellEnergy sensor for %s",
-                        plant["plantname"],
-                    )
-                    entities.append(
-                        ESolarSensorPlantBatterySellEnergy(
-                            coordinator, plant["plantname"], plant["plantuid"]
+                    if plant["type"] == 0:
+                        _LOGGER.debug(
+                            "Setting up ESolarSensorPlantTotalEnergy sensor for %s",
+                            plant["plantname"],
                         )
-                    )
-                    _LOGGER.debug(
-                        "Setting up ESolarSensorPlantBatteryBuyEnergy sensor for %s",
-                        plant["plantname"],
-                    )
-                    entities.append(
-                        ESolarSensorPlantBatteryBuyEnergy(
-                            coordinator, plant["plantname"], plant["plantuid"]
+                        entities.append(
+                            ESolarSensorPlantTotalEnergy(
+                                coordinator, plant["plantname"], plant["plantuid"]
+                            )
                         )
-                    )
-                    _LOGGER.debug(
-                        "Setting up ESolarSensorPlantBatteryChargeEnergy sensor for %s",
-                        plant["plantname"],
-                    )
-                    entities.append(
-                        ESolarSensorPlantBatteryChargeEnergy(
-                            coordinator, plant["plantname"], plant["plantuid"]
+                    elif plant["type"] == 3:
+                        _LOGGER.debug(
+                            "Setting up ESolarSensorPlantBatterySellEnergy sensor for %s",
+                            plant["plantname"],
                         )
-                    )
-                    _LOGGER.debug(
-                        "Setting up ESolarSensorPlantBatteryDischargeEnergy sensor for %s",
-                        plant["plantname"],
-                    )
-                    entities.append(
-                        ESolarSensorPlantBatteryDischargeEnergy(
-                            coordinator, plant["plantname"], plant["plantuid"]
+                        entities.append(
+                            ESolarSensorPlantBatterySellEnergy(
+                                coordinator, plant["plantname"], plant["plantuid"]
+                            )
                         )
-                    )
-                    _LOGGER.debug(
-                        "Setting up ESolarSensorPlantBatterySoC sensor for %s",
-                        plant["plantname"],
-                    )
-                    entities.append(
-                        ESolarSensorPlantBatterySoC(
-                            coordinator, plant["plantname"], plant["plantuid"]
+                        _LOGGER.debug(
+                            "Setting up ESolarSensorPlantBatteryBuyEnergy sensor for %s",
+                            plant["plantname"],
                         )
-                    )
+                        entities.append(
+                            ESolarSensorPlantBatteryBuyEnergy(
+                                coordinator, plant["plantname"], plant["plantuid"]
+                            )
+                        )
+                        _LOGGER.debug(
+                            "Setting up ESolarSensorPlantBatteryChargeEnergy sensor for %s",
+                            plant["plantname"],
+                        )
+                        entities.append(
+                            ESolarSensorPlantBatteryChargeEnergy(
+                                coordinator, plant["plantname"], plant["plantuid"]
+                            )
+                        )
+                        _LOGGER.debug(
+                            "Setting up ESolarSensorPlantBatteryDischargeEnergy sensor for %s",
+                            plant["plantname"],
+                        )
+                        entities.append(
+                            ESolarSensorPlantBatteryDischargeEnergy(
+                                coordinator, plant["plantname"], plant["plantuid"]
+                            )
+                        )
+                        _LOGGER.debug(
+                            "Setting up ESolarSensorPlantBatterySoC sensor for %s",
+                            plant["plantname"],
+                        )
+                        entities.append(
+                            ESolarSensorPlantBatterySoC(
+                                coordinator, plant["plantname"], plant["plantuid"]
+                            )
+                        )
 
-                if use_inverter_sensors:
-                    for inverter in plant["plantDetail"]["snList"]:
-                        _LOGGER.debug(
-                            "Setting up ESolarInverterEnergyTotal sensor for %s and inverter %s",
-                            plant["plantname"],
-                            inverter,
-                        )
-                        entities.append(
-                            ESolarInverterEnergyTotal(
-                                coordinator,
-                                plant["plantname"],
-                                plant["plantuid"],
-                                inverter,
-                            )
-                        )
-                        _LOGGER.debug(
-                            "Setting up ESolarInverterPower sensor for %s and inverter %s",
-                            plant["plantname"],
-                            inverter,
-                        )
-                        entities.append(
-                            ESolarInverterPower(
-                                coordinator,
-                                plant["plantname"],
-                                plant["plantuid"],
-                                inverter,
-                                use_pv_grid_attributes,
-                            )
-                        )
-                        if plant["type"] == 3:
+                    if use_inverter_sensors:
+                        for inverter in plant["plantDetail"]["snList"]:
                             _LOGGER.debug(
-                                "Setting up ESolarInverterBatterySoC sensor for %s and inverter %s",
+                                "Setting up ESolarInverterEnergyTotal sensor for %s and inverter %s",
                                 plant["plantname"],
                                 inverter,
                             )
                             entities.append(
-                                ESolarInverterBatterySoC(
+                                ESolarInverterEnergyTotal(
                                     coordinator,
                                     plant["plantname"],
                                     plant["plantuid"],
                                     inverter,
                                 )
                             )
+                            _LOGGER.debug(
+                                "Setting up ESolarInverterPower sensor for %s and inverter %s",
+                                plant["plantname"],
+                                inverter,
+                            )
+                            entities.append(
+                                ESolarInverterPower(
+                                    coordinator,
+                                    plant["plantname"],
+                                    plant["plantuid"],
+                                    inverter,
+                                    use_pv_grid_attributes,
+                                )
+                            )
+                            if plant["type"] == 3:
+                                _LOGGER.debug(
+                                    "Setting up ESolarInverterBatterySoC sensor for %s and inverter %s",
+                                    plant["plantname"],
+                                    inverter,
+                                )
+                                entities.append(
+                                    ESolarInverterBatterySoC(
+                                        coordinator,
+                                        plant["plantname"],
+                                        plant["plantuid"],
+                                        inverter,
+                                    )
+                                )
 
     async_add_entities(entities, True)
 
@@ -1161,7 +1162,7 @@ class ESolarInverterBatterySoC(ESolarSensor):
                 for kit in plant["kitList"]:
                     if self.inverter_sn == kit["devicesn"]:
                         if kit["onLineStr"] == "1":
-                            value = kit["storeDevicePower"]["batEnergyPercent"]
+                            value = float(kit["storeDevicePower"]["batEnergyPercent"])
 
                             # Setup dynamic attributes
                             self._attr_extra_state_attributes[B_CURRENT] = kit[
