@@ -89,3 +89,22 @@ I_HISTORY = "History"
 B_DIR_CH = "Charging"
 B_DIR_DIS = "Discharging"
 B_DIR_STB = "Standby"
+
+B_CAPACITY = "Battery Capacity"
+B_CURRENT = "Battery Current"
+B_POWER = "Battery Power"
+
+B_GRID_DIRECT = "Grid Direction"
+B_IMPORT = "Importing"
+B_EXPORT = "Exporting"
+G_POWER = "Grid Power"
+S_POWER = "Solar Power"
+IO_POWER = "Input/Output Power"
+IO_DIRECTION = "Output Direction"
+
+PV_POWER = "Photovoltaics Power"
+PV_DIRECTION = "Photovoltaics Direction"
+
+B_T_LOAD = "Total Load Power"
+B_H_LOAD = "Home Load Power"
+B_B_LOAD = "Backup Load Power"

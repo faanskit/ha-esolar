@@ -87,6 +87,21 @@ from .const import (
     B_DIR_CH,
     B_DIR_DIS,
     B_DIR_STB,
+    B_CAPACITY,
+    B_GRID_DIRECT,
+    B_IMPORT,
+    B_EXPORT,
+    B_CURRENT,
+    B_POWER,
+    G_POWER,
+    S_POWER,
+    IO_POWER,
+    IO_DIRECTION,
+    PV_POWER,
+    PV_DIRECTION,
+    B_T_LOAD,
+    B_H_LOAD,
+    B_B_LOAD,
 )
 
 ICON_POWER = "mdi:solar-power"
@@ -827,7 +842,7 @@ class ESolarInverterEnergyTotal(ESolarSensor):
                                 self._attr_extra_state_attributes[
                                     B_DIRECTION
                                 ] = B_DIR_DIS
-                            elif kit[0]["storeDevicePower"]["batteryDirection"] == -1:
+                            elif kit["storeDevicePower"]["batteryDirection"] == -1:
                                 self._attr_extra_state_attributes[
                                     B_DIRECTION
                                 ] = B_DIR_CH
@@ -1098,6 +1113,20 @@ class ESolarInverterBatterySoC(ESolarSensor):
             P_UID: None,
             I_MODEL: None,
             I_SN: None,
+            B_CAPACITY: None,
+            B_CURRENT: None,
+            B_POWER: None,
+            B_DIRECTION: None,
+            G_POWER: None,
+            B_GRID_DIRECT: None,
+            IO_POWER: None,
+            IO_DIRECTION: None,
+            PV_POWER: None,
+            PV_DIRECTION: None,
+            B_T_LOAD: None,
+            B_H_LOAD: None,
+            B_B_LOAD: None,
+            S_POWER: None,
         }
 
     async def async_update(self) -> None:
@@ -1112,6 +1141,9 @@ class ESolarInverterBatterySoC(ESolarSensor):
                     if kit["devicesn"] == self.inverter_sn:
                         self._attr_extra_state_attributes[I_MODEL] = kit["devicetype"]
                         self._attr_extra_state_attributes[I_SN] = kit["devicesn"]
+                        self._attr_extra_state_attributes[B_CAPACITY] = kit[
+                            "storeDevicePower"
+                        ]["batCapcityStr"]
 
                         # Setup state
                         if kit["onLineStr"] == "1":
@@ -1130,5 +1162,94 @@ class ESolarInverterBatterySoC(ESolarSensor):
                     if self.inverter_sn == kit["devicesn"]:
                         if kit["onLineStr"] == "1":
                             value = kit["storeDevicePower"]["batEnergyPercent"]
+
+                            # Setup dynamic attributes
+                            self._attr_extra_state_attributes[B_CURRENT] = kit[
+                                "storeDevicePower"
+                            ]["batCurr"]
+                            self._attr_extra_state_attributes[B_POWER] = kit[
+                                "storeDevicePower"
+                            ]["batteryPower"]
+
+                            if kit["storeDevicePower"]["batteryDirection"] == 0:
+                                self._attr_extra_state_attributes[
+                                    B_DIRECTION
+                                ] = B_DIR_STB
+                            elif kit["storeDevicePower"]["batteryDirection"] == 1:
+                                self._attr_extra_state_attributes[
+                                    B_DIRECTION
+                                ] = B_DIR_DIS
+                            elif kit["storeDevicePower"]["batteryDirection"] == -1:
+                                self._attr_extra_state_attributes[
+                                    B_DIRECTION
+                                ] = B_DIR_CH
+                            else:
+                                self._attr_extra_state_attributes[
+                                    B_DIRECTION
+                                ] = P_UNKNOWN
+
+                            self._attr_extra_state_attributes[G_POWER] = kit[
+                                "storeDevicePower"
+                            ]["gridPower"]
+
+                            if kit["storeDevicePower"]["gridDirection"] == 1:
+                                self._attr_extra_state_attributes[
+                                    B_GRID_DIRECT
+                                ] = B_EXPORT
+                            elif kit["storeDevicePower"]["gridDirection"] == -1:
+                                self._attr_extra_state_attributes[
+                                    B_GRID_DIRECT
+                                ] = B_IMPORT
+                            else:
+                                self._attr_extra_state_attributes[
+                                    B_GRID_DIRECT
+                                ] = P_UNKNOWN
+
+                            self._attr_extra_state_attributes[IO_POWER] = kit[
+                                "storeDevicePower"
+                            ]["inputOutputPower"]
+
+                            if kit["storeDevicePower"]["outPutDirection"] == 1:
+                                self._attr_extra_state_attributes[
+                                    IO_DIRECTION
+                                ] = B_EXPORT
+                            elif kit["storeDevicePower"]["outPutDirection"] == -1:
+                                self._attr_extra_state_attributes[
+                                    IO_DIRECTION
+                                ] = B_IMPORT
+                            else:
+                                self._attr_extra_state_attributes[
+                                    IO_DIRECTION
+                                ] = P_UNKNOWN
+
+                            self._attr_extra_state_attributes[PV_POWER] = kit[
+                                "storeDevicePower"
+                            ]["pvPower"]
+
+                            if kit["storeDevicePower"]["pvDirection"] == 1:
+                                self._attr_extra_state_attributes[
+                                    PV_DIRECTION
+                                ] = B_EXPORT
+                            elif kit["storeDevicePower"]["pvDirection"] == -1:
+                                self._attr_extra_state_attributes[
+                                    PV_DIRECTION
+                                ] = B_IMPORT
+                            else:
+                                self._attr_extra_state_attributes[
+                                    PV_DIRECTION
+                                ] = P_UNKNOWN
+
+                            self._attr_extra_state_attributes[B_T_LOAD] = kit[
+                                "storeDevicePower"
+                            ]["totalLoadPower"]
+                            self._attr_extra_state_attributes[B_H_LOAD] = kit[
+                                "storeDevicePower"
+                            ]["homeLoadPower"]
+                            self._attr_extra_state_attributes[B_B_LOAD] = kit[
+                                "storeDevicePower"
+                            ]["backupLoadPower"]
+                            self._attr_extra_state_attributes[S_POWER] = kit[
+                                "storeDevicePower"
+                            ]["solarPower"]
 
         return value
