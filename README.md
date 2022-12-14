@@ -2,7 +2,7 @@
 
 # Home Assistant SAJ eSolar Custom Integration
 This integration uses cloud polling from the SAJ eSolar portal using a reverse engineered private API. 
-Thanks to [SAJeSolar](https://github.com/djansen1987/SAJeSolar) for inspiration.
+Thanks to [SAJ eSolar](https://github.com/djansen1987/SAJeSolar) for inspiration.
 
 This integration today support SAJ R5 and SAJ H1. SAJ SEC has not yet been implemented mainly due to lack of access to a SEC system,
 
@@ -19,15 +19,15 @@ These attributes can be fetched by implementing a template sensor using jinja2. 
 1. Have HACS installed, this will allow you to easily update
 2. Add https://github.com/faanskit/ha-esolar as a custom repository as Type: Integration
 3. Click install under "SAJ eSolar Air" in the Integration tab
-4. Restart HA
+4. Restart Home Assistant
 5. Enable the integration
 
 ### Manual
-- Copy directory `custom_components/esolar` to your `<config dir>/custom_components` directory.
+- Copy directory `custom_components/saj_esolar_air` to your `<config dir>/custom_components` directory.
 - Restart Home-Assistant.
 
 ## Enable the integration
-Go to Settings / Devices & Services / Integrations. Click + ADD INTERATION
+Go to Settings / Devices & Services / Integrations. Click **+ ADD INTERATION**
 
 ![alt text](https://github.com/faanskit/ha-esolar/blob/main/images/setup_step_1.png)
 
@@ -39,7 +39,7 @@ Enter your SAJ eSolar username and password
 
 ![alt text](https://github.com/faanskit/ha-esolar/blob/main/images/setup_step_3.png)
 
-If you have more than one site, select which sites that shall be installed
+If you have more than one site, select which of the sites that shall be installed
 
 ![alt text](https://github.com/faanskit/ha-esolar/blob/main/images/setup_step_4.png)
 
@@ -62,18 +62,18 @@ Your home screen will now have a number of new entities depending on your system
 ## Configuration
 If you need more sensor and more detailed attributes in the sensors, you can configure the integration as follows
 
-Go to Settings / Devices & Services / SAL eSolar. Click CONFIGURE.
+Go to Settings / Devices & Services / SAL eSolar. Click **CONFIGURE**.
 
 Select if you want additional inverter sensors and if you want Photovoltaics and Grid attributes.
 Take note that the Photovoltaics and Grid attributes will pull additional data from the SAJ servers.
 
 ![alt text](https://github.com/faanskit/ha-esolar/blob/main/images/configure_step_1.png)
 
-After the configuration is done, you need to restart the integration. Click ... and select Reload
+After the configuration is done you need to restart the integration. Click **...** and select **Reload**
 
 ![alt text](https://github.com/faanskit/ha-esolar/blob/main/images/configure_step_2.png)
 
-The system will now reload and add two new sensors per inverter (Energy Total and Power)
+The system will now reload and add two-tre new sensors per inverter (Energy Total, Power and for H1 system Battery SoC)
 
 ![alt text](https://github.com/faanskit/ha-esolar/blob/main/images/configure_step_3.png)
 
