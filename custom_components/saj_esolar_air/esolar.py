@@ -352,7 +352,7 @@ def web_get_device_page_list(session, plant_info, use_pv_grid_attributes):
                             store_device_power,
                         )
 
-                    kit.append(device)
+                kit.append(device)
 
             plant.update({"kitList": kit})
 
