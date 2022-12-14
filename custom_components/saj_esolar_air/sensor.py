@@ -17,7 +17,7 @@ from homeassistant.helpers.entity import DeviceInfo
 from homeassistant.helpers.entity_platform import AddEntitiesCallback
 from homeassistant.helpers.update_coordinator import CoordinatorEntity
 
-from . import ESolarCoordinator
+from . import ESolarCoordinator, ESolarResponse
 from .const import (
     B_B_LOAD,
     B_BACKUP_POWER_W,
@@ -120,122 +120,125 @@ async def async_setup_entry(
     """Set up the eSolar sensor."""
     coordinator: ESolarCoordinator = hass.data[DOMAIN][entry.entry_id]
     entities: list[ESolarSensor] = []
+    esolar_data: ESolarResponse = coordinator.data
     my_plants = entry.options.get(CONF_MONITORED_SITES)
     use_inverter_sensors = entry.options.get(CONF_INVERTER_SENSORS)
     use_pv_grid_attributes = entry.options.get(CONF_PV_GRID_DATA)
 
-    if my_plants is not None:
-        for enabled_plant in my_plants:
-            for plant in coordinator.data["plantList"]:
-                if plant["plantname"] == enabled_plant:
+    if my_plants is None:
+        return
+
+    for enabled_plant in my_plants:
+        for plant in esolar_data["plantList"]:
+            if plant["plantname"] != enabled_plant:
+                continue
+
+            _LOGGER.debug(
+                "Setting up ESolarSensorPlant sensor for %s", plant["plantname"]
+            )
+            entities.append(
+                ESolarSensorPlant(coordinator, plant["plantname"], plant["plantuid"])
+            )
+            if plant["type"] == 0:
+                _LOGGER.debug(
+                    "Setting up ESolarSensorPlantTotalEnergy sensor for %s",
+                    plant["plantname"],
+                )
+                entities.append(
+                    ESolarSensorPlantTotalEnergy(
+                        coordinator, plant["plantname"], plant["plantuid"]
+                    )
+                )
+            elif plant["type"] == 3:
+                _LOGGER.debug(
+                    "Setting up ESolarSensorPlantBatterySellEnergy sensor for %s",
+                    plant["plantname"],
+                )
+                entities.append(
+                    ESolarSensorPlantBatterySellEnergy(
+                        coordinator, plant["plantname"], plant["plantuid"]
+                    )
+                )
+                _LOGGER.debug(
+                    "Setting up ESolarSensorPlantBatteryBuyEnergy sensor for %s",
+                    plant["plantname"],
+                )
+                entities.append(
+                    ESolarSensorPlantBatteryBuyEnergy(
+                        coordinator, plant["plantname"], plant["plantuid"]
+                    )
+                )
+                _LOGGER.debug(
+                    "Setting up ESolarSensorPlantBatteryChargeEnergy sensor for %s",
+                    plant["plantname"],
+                )
+                entities.append(
+                    ESolarSensorPlantBatteryChargeEnergy(
+                        coordinator, plant["plantname"], plant["plantuid"]
+                    )
+                )
+                _LOGGER.debug(
+                    "Setting up ESolarSensorPlantBatteryDischargeEnergy sensor for %s",
+                    plant["plantname"],
+                )
+                entities.append(
+                    ESolarSensorPlantBatteryDischargeEnergy(
+                        coordinator, plant["plantname"], plant["plantuid"]
+                    )
+                )
+                _LOGGER.debug(
+                    "Setting up ESolarSensorPlantBatterySoC sensor for %s",
+                    plant["plantname"],
+                )
+                entities.append(
+                    ESolarSensorPlantBatterySoC(
+                        coordinator, plant["plantname"], plant["plantuid"]
+                    )
+                )
+
+            if use_inverter_sensors:
+                for inverter in plant["plantDetail"]["snList"]:
                     _LOGGER.debug(
-                        "Setting up ESolarSensorPlant sensor for %s", plant["plantname"]
+                        "Setting up ESolarInverterEnergyTotal sensor for %s and inverter %s",
+                        plant["plantname"],
+                        inverter,
                     )
                     entities.append(
-                        ESolarSensorPlant(
-                            coordinator, plant["plantname"], plant["plantuid"]
+                        ESolarInverterEnergyTotal(
+                            coordinator,
+                            plant["plantname"],
+                            plant["plantuid"],
+                            inverter,
                         )
                     )
-                    if plant["type"] == 0:
-                        _LOGGER.debug(
-                            "Setting up ESolarSensorPlantTotalEnergy sensor for %s",
+                    _LOGGER.debug(
+                        "Setting up ESolarInverterPower sensor for %s and inverter %s",
+                        plant["plantname"],
+                        inverter,
+                    )
+                    entities.append(
+                        ESolarInverterPower(
+                            coordinator,
                             plant["plantname"],
+                            plant["plantuid"],
+                            inverter,
+                            use_pv_grid_attributes,
+                        )
+                    )
+                    if plant["type"] == 3:
+                        _LOGGER.debug(
+                            "Setting up ESolarInverterBatterySoC sensor for %s and inverter %s",
+                            plant["plantname"],
+                            inverter,
                         )
                         entities.append(
-                            ESolarSensorPlantTotalEnergy(
-                                coordinator, plant["plantname"], plant["plantuid"]
-                            )
-                        )
-                    elif plant["type"] == 3:
-                        _LOGGER.debug(
-                            "Setting up ESolarSensorPlantBatterySellEnergy sensor for %s",
-                            plant["plantname"],
-                        )
-                        entities.append(
-                            ESolarSensorPlantBatterySellEnergy(
-                                coordinator, plant["plantname"], plant["plantuid"]
-                            )
-                        )
-                        _LOGGER.debug(
-                            "Setting up ESolarSensorPlantBatteryBuyEnergy sensor for %s",
-                            plant["plantname"],
-                        )
-                        entities.append(
-                            ESolarSensorPlantBatteryBuyEnergy(
-                                coordinator, plant["plantname"], plant["plantuid"]
-                            )
-                        )
-                        _LOGGER.debug(
-                            "Setting up ESolarSensorPlantBatteryChargeEnergy sensor for %s",
-                            plant["plantname"],
-                        )
-                        entities.append(
-                            ESolarSensorPlantBatteryChargeEnergy(
-                                coordinator, plant["plantname"], plant["plantuid"]
-                            )
-                        )
-                        _LOGGER.debug(
-                            "Setting up ESolarSensorPlantBatteryDischargeEnergy sensor for %s",
-                            plant["plantname"],
-                        )
-                        entities.append(
-                            ESolarSensorPlantBatteryDischargeEnergy(
-                                coordinator, plant["plantname"], plant["plantuid"]
-                            )
-                        )
-                        _LOGGER.debug(
-                            "Setting up ESolarSensorPlantBatterySoC sensor for %s",
-                            plant["plantname"],
-                        )
-                        entities.append(
-                            ESolarSensorPlantBatterySoC(
-                                coordinator, plant["plantname"], plant["plantuid"]
-                            )
-                        )
-
-                    if use_inverter_sensors:
-                        for inverter in plant["plantDetail"]["snList"]:
-                            _LOGGER.debug(
-                                "Setting up ESolarInverterEnergyTotal sensor for %s and inverter %s",
+                            ESolarInverterBatterySoC(
+                                coordinator,
                                 plant["plantname"],
+                                plant["plantuid"],
                                 inverter,
                             )
-                            entities.append(
-                                ESolarInverterEnergyTotal(
-                                    coordinator,
-                                    plant["plantname"],
-                                    plant["plantuid"],
-                                    inverter,
-                                )
-                            )
-                            _LOGGER.debug(
-                                "Setting up ESolarInverterPower sensor for %s and inverter %s",
-                                plant["plantname"],
-                                inverter,
-                            )
-                            entities.append(
-                                ESolarInverterPower(
-                                    coordinator,
-                                    plant["plantname"],
-                                    plant["plantuid"],
-                                    inverter,
-                                    use_pv_grid_attributes,
-                                )
-                            )
-                            if plant["type"] == 3:
-                                _LOGGER.debug(
-                                    "Setting up ESolarInverterBatterySoC sensor for %s and inverter %s",
-                                    plant["plantname"],
-                                    inverter,
-                                )
-                                entities.append(
-                                    ESolarInverterBatterySoC(
-                                        coordinator,
-                                        plant["plantname"],
-                                        plant["plantuid"],
-                                        inverter,
-                                    )
-                                )
+                        )
 
     async_add_entities(entities, True)
 
@@ -405,7 +408,7 @@ class ESolarSensorPlantTotalEnergy(ESolarSensor):
                 self._attr_native_value = float(plant["totalElectricity"])
 
     @property
-    def native_value(self) -> str | None:
+    def native_value(self) -> float | None:
         """Return sensor state."""
         for plant in self._coordinator.data["plantList"]:
             if plant["plantname"] == self._plant_name:
@@ -417,9 +420,10 @@ class ESolarSensorPlantTotalEnergy(ESolarSensor):
                     plant["nowPower"]
                 )
                 if plant["type"] == 0:
-                    peak_power = 0
-                    for inverter in plant["peakList"]:
-                        peak_power += inverter["peakPower"]
+                    peak_power = float(0.0)
+                    if plant["peakList"] is not None:
+                        for inverter in plant["peakList"]:
+                            peak_power += inverter["peakPower"]
                     self._attr_extra_state_attributes[P_PEAK_POWER] = float(peak_power)
                 else:
                     self._attr_extra_state_attributes[P_PEAK_POWER] = None
@@ -467,15 +471,19 @@ class ESolarSensorPlantBatteryBuyEnergy(ESolarSensor):
                 self._attr_extra_state_attributes[P_UID] = plant["plantuid"]
 
                 # Setup state
-                self._attr_native_value = float(plant["plantDetail"]["totalBuyElec"])
+                if plant["plantDetail"]["totalBuyElec"] is not None:
+                    self._attr_native_value = float(
+                        plant["plantDetail"]["totalBuyElec"]
+                    )
 
     @property
-    def native_value(self) -> str | None:
+    def native_value(self) -> float | None:
         """Return sensor state."""
         for plant in self._coordinator.data["plantList"]:
             if plant["plantname"] == self._plant_name:
                 # Setup state
-                value = float(plant["plantDetail"]["totalBuyElec"])
+                if plant["plantDetail"]["totalBuyElec"] is not None:
+                    value = float(plant["plantDetail"]["totalBuyElec"])
 
         return value
 
@@ -517,15 +525,19 @@ class ESolarSensorPlantBatterySellEnergy(ESolarSensor):
                 self._attr_extra_state_attributes[P_UID] = plant["plantuid"]
 
                 # Setup state
-                self._attr_native_value = float(plant["plantDetail"]["totalSellElec"])
+                if plant["plantDetail"]["totalSellElec"] is not None:
+                    self._attr_native_value = float(
+                        plant["plantDetail"]["totalSellElec"]
+                    )
 
     @property
-    def native_value(self) -> str | None:
+    def native_value(self) -> float | None:
         """Return sensor state."""
         for plant in self._coordinator.data["plantList"]:
             if plant["plantname"] == self._plant_name:
                 # Setup state
-                value = float(plant["plantDetail"]["totalSellElec"])
+                if plant["plantDetail"]["totalSellElec"] is not None:
+                    value = float(plant["plantDetail"]["totalSellElec"])
 
         return value
 
@@ -568,19 +580,19 @@ class ESolarSensorPlantBatteryChargeEnergy(ESolarSensor):
 
                 # Setup state
                 charge = float(0)
-                if "beanList" in plant:
+                if "beanList" in plant and plant["beanList"] is not None:
                     for bean in plant["beanList"]:
                         charge += float(bean["chargeElec"])
                 self._attr_native_value = charge
 
     @property
-    def native_value(self) -> str | None:
+    def native_value(self) -> float | None:
         """Return sensor state."""
         for plant in self._coordinator.data["plantList"]:
             if plant["plantname"] == self._plant_name:
                 # Setup state
                 charge = float(0)
-                if "beanList" in plant:
+                if "beanList" in plant and plant["beanList"] is not None:
                     for bean in plant["beanList"]:
                         charge += float(bean["chargeElec"])
                 value = charge
@@ -626,19 +638,19 @@ class ESolarSensorPlantBatteryDischargeEnergy(ESolarSensor):
 
                 # Setup state
                 discharge = float(0)
-                if "beanList" in plant:
+                if "beanList" in plant and plant["beanList"] is not None:
                     for bean in plant["beanList"]:
                         discharge += float(bean["dischargeElec"])
                 self._attr_native_value = discharge
 
     @property
-    def native_value(self) -> str | None:
+    def native_value(self) -> float | None:
         """Return sensor state."""
         for plant in self._coordinator.data["plantList"]:
             if plant["plantname"] == self._plant_name:
                 # Setup state
                 discharge = float(0)
-                if "beanList" in plant:
+                if "beanList" in plant and plant["beanList"] is not None:
                     for bean in plant["beanList"]:
                         discharge += float(bean["dischargeElec"])
                 value = discharge
@@ -674,50 +686,54 @@ class ESolarSensorPlantBatterySoC(ESolarSensor):
 
     async def async_update(self) -> None:
         """Get the latest data and updates the states."""
-        installed_power = 0
-        available_power = 0
+        installed_power = float(0)
+        available_power = float(0)
         for plant in self._coordinator.data["plantList"]:
-            if plant["plantname"] == self._plant_name:
-                # Setup static attributes
-                self._attr_available = True
-                self._attr_extra_state_attributes[P_NAME] = plant["plantname"]
-                self._attr_extra_state_attributes[P_UID] = plant["plantuid"]
+            if plant["plantname"] != self._plant_name:
+                continue
+            # Setup static attributes
+            self._attr_available = True
+            self._attr_extra_state_attributes[P_NAME] = plant["plantname"]
+            self._attr_extra_state_attributes[P_UID] = plant["plantuid"]
 
-                # Setup state
-                for inverter in plant["plantDetail"]["snList"]:
-                    for kit in plant["kitList"]:
-                        if inverter == kit["devicesn"]:
-                            if kit["onLineStr"] == "1":
-                                installed_power += kit["storeDevicePower"]["batCapcity"]
-                                available_power += (
-                                    kit["storeDevicePower"]["batCapcity"]
-                                    * kit["storeDevicePower"]["batEnergyPercent"]
-                                )
+            # Setup state
+            for inverter in plant["plantDetail"]["snList"]:
+                if "kitList" not in plant or plant["kitList"] is None:
+                    continue
+                for kit in plant["kitList"]:
+                    if inverter == kit["devicesn"] and kit["onLineStr"] == "1":
+                        installed_power += kit["storeDevicePower"]["batCapcity"]
+                        available_power += (
+                            kit["storeDevicePower"]["batCapcity"]
+                            * kit["storeDevicePower"]["batEnergyPercent"]
+                        )
 
-                if installed_power > 0:
-                    self._attr_native_value = float(available_power / installed_power)
+            if installed_power > 0:
+                self._attr_native_value = float(available_power / installed_power)
 
     @property
-    def native_value(self) -> str | None:
+    def native_value(self) -> float | None:
         """Return sensor state."""
-        installed_power = 0
-        available_power = 0
+        installed_power = float(0)
+        available_power = float(0)
         for plant in self._coordinator.data["plantList"]:
-            if plant["plantname"] == self._plant_name:
-                # Setup state
-                for inverter in plant["plantDetail"]["snList"]:
-                    for kit in plant["kitList"]:
-                        if inverter == kit["devicesn"]:
-                            if kit["onLineStr"] == "1":
-                                installed_power += kit["storeDevicePower"]["batCapcity"]
-                                available_power += (
-                                    kit["storeDevicePower"]["batCapcity"]
-                                    * kit["storeDevicePower"]["batEnergyPercent"]
-                                )
-                if installed_power > 0:
-                    value = float(available_power / installed_power)
-                else:
-                    value = None
+            if plant["plantname"] != self._plant_name:
+                continue
+            # Setup state
+            for inverter in plant["plantDetail"]["snList"]:
+                if "kitList" not in plant or plant["kitList"] is None:
+                    continue
+                for kit in plant["kitList"]:
+                    if inverter == kit["devicesn"] and kit["onLineStr"] == "1":
+                        installed_power += kit["storeDevicePower"]["batCapcity"]
+                        available_power += (
+                            kit["storeDevicePower"]["batCapcity"]
+                            * kit["storeDevicePower"]["batEnergyPercent"]
+                        )
+            if installed_power > 0:
+                value = float(available_power / installed_power)
+            else:
+                value = None
 
         return value
 
@@ -772,6 +788,8 @@ class ESolarInverterEnergyTotal(ESolarSensor):
                 self._attr_available = True
                 self._attr_extra_state_attributes[P_NAME] = plant["plantname"]
                 self._attr_extra_state_attributes[P_UID] = plant["plantuid"]
+                if "kitList" not in plant or plant["kitList"] is None:
+                    continue
                 for kit in plant["kitList"]:
                     if kit["devicesn"] == self.inverter_sn:
                         self._attr_extra_state_attributes[I_MODEL] = kit["devicetype"]
@@ -801,75 +819,60 @@ class ESolarInverterEnergyTotal(ESolarSensor):
         """Return sensor state."""
         value = None
         for plant in self._coordinator.data["plantList"]:
-            if plant["plantname"] == self._plant_name:
+            if plant["plantname"] != self._plant_name:
+                continue
+            if "kitList" in plant and plant["kitList"] is not None:
                 for kit in plant["kitList"]:
-                    if kit["devicesn"] == self.inverter_sn:
-                        # Setup state
-                        value = float(kit["totalSellEnergy"])
+                    if kit["devicesn"] != self.inverter_sn:
+                        continue
+                    # Setup state
+                    value = float(kit["totalSellEnergy"])
 
-                        # Setup dynamic attributes
-                        self._attr_extra_state_attributes[I_TODAY_E] = float(
-                            kit["todaySellEnergy"]
-                        )
-                        self._attr_extra_state_attributes[I_MONTH_E] = float(
-                            kit["monthSellEnergy"]
-                        )
-                        self._attr_extra_state_attributes[I_TOTAL_E] = float(
-                            kit["totalSellEnergy"]
-                        )
-                        if kit["onLineStr"] == "1":
-                            self._attr_extra_state_attributes[I_STATUS] = I_NORMAL
-                        elif kit["onLineStr"] == "2":
-                            self._attr_extra_state_attributes[I_STATUS] = I_ALARM
-                        elif kit["onLineStr"] == "3":
-                            self._attr_extra_state_attributes[I_STATUS] = I_OFFLINE
-                        elif kit["onLineStr"] == "4":
-                            self._attr_extra_state_attributes[I_STATUS] = I_STOCK
-                        elif kit["onLineStr"] == "4":
-                            self._attr_extra_state_attributes[I_STATUS] = I_HISTORY
+                    # Setup dynamic attributes
+                    self._attr_extra_state_attributes[I_TODAY_E] = float(
+                        kit["todaySellEnergy"]
+                    )
+                    self._attr_extra_state_attributes[I_MONTH_E] = float(
+                        kit["monthSellEnergy"]
+                    )
+                    self._attr_extra_state_attributes[I_TOTAL_E] = float(
+                        kit["totalSellEnergy"]
+                    )
+                    if kit["onLineStr"] == "1":
+                        self._attr_extra_state_attributes[I_STATUS] = I_NORMAL
+                    elif kit["onLineStr"] == "2":
+                        self._attr_extra_state_attributes[I_STATUS] = I_ALARM
+                    elif kit["onLineStr"] == "3":
+                        self._attr_extra_state_attributes[I_STATUS] = I_OFFLINE
+                    elif kit["onLineStr"] == "4":
+                        self._attr_extra_state_attributes[I_STATUS] = I_STOCK
+                    elif kit["onLineStr"] == "4":
+                        self._attr_extra_state_attributes[I_STATUS] = I_HISTORY
+                    else:
+                        self._attr_extra_state_attributes[I_STATUS] = P_UNKNOWN
+
+                    self._attr_extra_state_attributes[I_CURRENT_POWER] = kit["powernow"]
+
+                    if kit["type"] == 2:
+                        if kit["storeDevicePower"]["batteryDirection"] == 0:
+                            self._attr_extra_state_attributes[B_DIRECTION] = B_DIR_STB
+                        elif kit["storeDevicePower"]["batteryDirection"] == 1:
+                            self._attr_extra_state_attributes[B_DIRECTION] = B_DIR_DIS
+                        elif kit["storeDevicePower"]["batteryDirection"] == -1:
+                            self._attr_extra_state_attributes[B_DIRECTION] = B_DIR_CH
                         else:
-                            self._attr_extra_state_attributes[I_STATUS] = P_UNKNOWN
-
-                        self._attr_extra_state_attributes[I_CURRENT_POWER] = kit[
-                            "powernow"
+                            self._attr_extra_state_attributes[B_DIRECTION] = P_UNKNOWN
+            if "beanList" in plant and plant["beanList"] is not None:
+                for bean in plant["beanList"]:
+                    if bean["devicesn"] == self.inverter_sn:
+                        self._attr_extra_state_attributes[B_PVELEC] = bean["pvElec"]
+                        self._attr_extra_state_attributes[B_USELEC] = bean["useElec"]
+                        self._attr_extra_state_attributes[B_BUYELEC] = bean["buyElec"]
+                        self._attr_extra_state_attributes[B_SELLELEC] = bean["sellElec"]
+                        self._attr_extra_state_attributes[B_BUY_RATE] = bean["buyRate"]
+                        self._attr_extra_state_attributes[B_SELL_RATE] = bean[
+                            "sellRate"
                         ]
-
-                        if kit["type"] == 2:
-                            if kit["storeDevicePower"]["batteryDirection"] == 0:
-                                self._attr_extra_state_attributes[
-                                    B_DIRECTION
-                                ] = B_DIR_STB
-                            elif kit["storeDevicePower"]["batteryDirection"] == 1:
-                                self._attr_extra_state_attributes[
-                                    B_DIRECTION
-                                ] = B_DIR_DIS
-                            elif kit["storeDevicePower"]["batteryDirection"] == -1:
-                                self._attr_extra_state_attributes[
-                                    B_DIRECTION
-                                ] = B_DIR_CH
-                            else:
-                                self._attr_extra_state_attributes[
-                                    B_DIRECTION
-                                ] = P_UNKNOWN
-                if "beanList" in plant:
-                    for bean in plant["beanList"]:
-                        if bean["devicesn"] == self.inverter_sn:
-                            self._attr_extra_state_attributes[B_PVELEC] = bean["pvElec"]
-                            self._attr_extra_state_attributes[B_USELEC] = bean[
-                                "useElec"
-                            ]
-                            self._attr_extra_state_attributes[B_BUYELEC] = bean[
-                                "buyElec"
-                            ]
-                            self._attr_extra_state_attributes[B_SELLELEC] = bean[
-                                "sellElec"
-                            ]
-                            self._attr_extra_state_attributes[B_BUY_RATE] = bean[
-                                "buyRate"
-                            ]
-                            self._attr_extra_state_attributes[B_SELL_RATE] = bean[
-                                "sellRate"
-                            ]
 
         return value
 
@@ -932,151 +935,145 @@ class ESolarInverterPower(ESolarSensor):
                 self._attr_available = True
                 self._attr_extra_state_attributes[P_NAME] = plant["plantname"]
                 self._attr_extra_state_attributes[P_UID] = plant["plantuid"]
-                for kit in plant["kitList"]:
-                    if kit["devicesn"] == self.inverter_sn:
-                        self._attr_extra_state_attributes[I_MODEL] = kit["devicetype"]
-                        self._attr_extra_state_attributes[I_SN] = kit["devicesn"]
+                if "kitList" in plant and plant["kitList"] is not None:
+                    for kit in plant["kitList"]:
+                        if kit["devicesn"] == self.inverter_sn:
+                            self._attr_extra_state_attributes[I_MODEL] = kit[
+                                "devicetype"
+                            ]
+                            self._attr_extra_state_attributes[I_SN] = kit["devicesn"]
 
-                        # Setup state
-                        self._attr_native_value = float(kit["powernow"])
+                            # Setup state
+                            self._attr_native_value = float(kit["powernow"])
 
     @property
     def native_value(self) -> float | None:
         """Return sensor state."""
         value = None
         for plant in self._coordinator.data["plantList"]:
-            if plant["plantname"] == self._plant_name:
-                # Setup dynamic attributes
-                for kit in plant["kitList"]:
-                    if kit["devicesn"] == self.inverter_sn:
-                        if self.use_pv_grid_attributes:
-                            if kit["onLineStr"] == "1":
-                                self._attr_extra_state_attributes[I_PV_VOL_PV] = [
-                                    kit["findRawdataPageList"]["pV1Volt"],
-                                    kit["findRawdataPageList"]["pV2Volt"],
-                                    kit["findRawdataPageList"]["pV3Volt"],
-                                ]
-                                self._attr_extra_state_attributes[I_PV_CURR_PV] = [
-                                    kit["findRawdataPageList"]["pV1Curr"],
-                                    kit["findRawdataPageList"]["pV2Curr"],
-                                    kit["findRawdataPageList"]["pV3Curr"],
-                                ]
-                                self._attr_extra_state_attributes[I_G_VOL_L] = [
-                                    kit["findRawdataPageList"]["rGridVolt"],
-                                    kit["findRawdataPageList"]["sGridVolt"],
-                                    kit["findRawdataPageList"]["tGridVolt"],
-                                ]
-                                self._attr_extra_state_attributes[I_G_CURR_L] = [
-                                    kit["findRawdataPageList"]["rGridCurr"],
-                                    kit["findRawdataPageList"]["sGridCurr"],
-                                    kit["findRawdataPageList"]["tGridCurr"],
-                                ]
-                                self._attr_extra_state_attributes[I_G_FREQ_L] = [
-                                    kit["findRawdataPageList"]["rGridFreq"],
-                                    kit["findRawdataPageList"]["sGridFreq"],
-                                    kit["findRawdataPageList"]["tGridFreq"],
-                                ]
-                                if (kit["findRawdataPageList"]["deviceType"]) == 2:
+            if plant["plantname"] != self._plant_name:
+                continue
+            # Setup dynamic attributes
+            if "kitList" not in plant or plant["kitList"] is None:
+                continue
+            for kit in plant["kitList"]:
+                if kit["devicesn"] != self.inverter_sn:
+                    continue
 
-                                    self._attr_extra_state_attributes[
-                                        B_GRID_POWER_W
-                                    ] = [
-                                        kit["findRawdataPageList"]["rGridPowerWatt"],
-                                        kit["findRawdataPageList"]["sGridPowerWatt"],
-                                        kit["findRawdataPageList"]["tGridPowerWatt"],
-                                    ]
-                                    self._attr_extra_state_attributes[
-                                        B_GRID_POWER_VA
-                                    ] = [
-                                        kit["findRawdataPageList"]["rGridPowerVA"],
-                                        kit["findRawdataPageList"]["sGridPowerVA"],
-                                        kit["findRawdataPageList"]["tGridPowerVA"],
-                                    ]
-                                    self._attr_extra_state_attributes[B_OUT_VOLT] = [
-                                        kit["findRawdataPageList"]["rOutVolt"],
-                                        kit["findRawdataPageList"]["sOutVolt"],
-                                        kit["findRawdataPageList"]["tOutVolt"],
-                                    ]
-                                    self._attr_extra_state_attributes[B_OUT_CURR] = [
-                                        kit["findRawdataPageList"]["rOutCurr"],
-                                        kit["findRawdataPageList"]["sOutCurr"],
-                                        kit["findRawdataPageList"]["tOutCurr"],
-                                    ]
-                                    self._attr_extra_state_attributes[
-                                        B_OUT_POWER_WATT
-                                    ] = [
-                                        kit["findRawdataPageList"]["rOutPowerWatt"],
-                                        kit["findRawdataPageList"]["sOutPowerWatt"],
-                                        kit["findRawdataPageList"]["tOutPowerWatt"],
-                                    ]
-                                    self._attr_extra_state_attributes[
-                                        B_OUT_POWER_VA
-                                    ] = [
-                                        kit["findRawdataPageList"]["rOutPowerVA"],
-                                        kit["findRawdataPageList"]["sOutPowerVA"],
-                                        kit["findRawdataPageList"]["tOutPowerVA"],
-                                    ]
-                                    self._attr_extra_state_attributes[B_OUT_FREQ] = [
-                                        kit["findRawdataPageList"]["rOutFreq"],
-                                        kit["findRawdataPageList"]["sOutFreq"],
-                                        kit["findRawdataPageList"]["tOutFreq"],
-                                    ]
-                                    self._attr_extra_state_attributes[B_ON_G_VOLT] = [
-                                        kit["findRawdataPageList"]["rOnGridOutVolt"],
-                                        kit["findRawdataPageList"]["sOnGridOutVolt"],
-                                        kit["findRawdataPageList"]["tOnGridOutVolt"],
-                                    ]
-                                    self._attr_extra_state_attributes[B_ON_G_FREQ] = [
-                                        kit["findRawdataPageList"]["rOnGridOutFreq"]
-                                    ]
-                                    self._attr_extra_state_attributes[
-                                        B_ON_G_POWER_W
-                                    ] = [
-                                        kit["findRawdataPageList"][
-                                            "rOnGridOutPowerWatt"
-                                        ],
-                                        kit["findRawdataPageList"][
-                                            "sOnGridOutPowerWatt"
-                                        ],
-                                        kit["findRawdataPageList"][
-                                            "tOnGridOutPowerWatt"
-                                        ],
-                                    ]
-                                    self._attr_extra_state_attributes[B_ON_G_FREQ] = [
-                                        kit["findRawdataPageList"]["rOnGridOutFreq"]
-                                    ]
-                                    self._attr_extra_state_attributes[
-                                        B_BACKUP_POWER_W
-                                    ] = [kit["findRawdataPageList"]["rBackupPowerWatt"]]
-                            else:
-                                self._attr_extra_state_attributes[I_PV_VOL_PV] = [
-                                    None,
-                                    None,
-                                    None,
-                                ]
-                                self._attr_extra_state_attributes[I_PV_CURR_PV] = [
-                                    None,
-                                    None,
-                                    None,
-                                ]
-                                self._attr_extra_state_attributes[I_G_VOL_L] = [
-                                    None,
-                                    None,
-                                    None,
-                                ]
-                                self._attr_extra_state_attributes[I_G_CURR_L] = [
-                                    None,
-                                    None,
-                                    None,
-                                ]
-                                self._attr_extra_state_attributes[I_G_FREQ_L] = [
-                                    None,
-                                    None,
-                                    None,
-                                ]
+                # Setup state
+                value = float(kit["powernow"])
 
-                        # Setup state
-                        value = float(kit["powernow"])
+                if not self.use_pv_grid_attributes:
+                    continue
+
+                if kit["onLineStr"] == "1":
+                    self._attr_extra_state_attributes[I_PV_VOL_PV] = [
+                        kit["findRawdataPageList"]["pV1Volt"],
+                        kit["findRawdataPageList"]["pV2Volt"],
+                        kit["findRawdataPageList"]["pV3Volt"],
+                    ]
+                    self._attr_extra_state_attributes[I_PV_CURR_PV] = [
+                        kit["findRawdataPageList"]["pV1Curr"],
+                        kit["findRawdataPageList"]["pV2Curr"],
+                        kit["findRawdataPageList"]["pV3Curr"],
+                    ]
+                    self._attr_extra_state_attributes[I_G_VOL_L] = [
+                        kit["findRawdataPageList"]["rGridVolt"],
+                        kit["findRawdataPageList"]["sGridVolt"],
+                        kit["findRawdataPageList"]["tGridVolt"],
+                    ]
+                    self._attr_extra_state_attributes[I_G_CURR_L] = [
+                        kit["findRawdataPageList"]["rGridCurr"],
+                        kit["findRawdataPageList"]["sGridCurr"],
+                        kit["findRawdataPageList"]["tGridCurr"],
+                    ]
+                    self._attr_extra_state_attributes[I_G_FREQ_L] = [
+                        kit["findRawdataPageList"]["rGridFreq"],
+                        kit["findRawdataPageList"]["sGridFreq"],
+                        kit["findRawdataPageList"]["tGridFreq"],
+                    ]
+                    if (kit["findRawdataPageList"]["deviceType"]) == 2:
+
+                        self._attr_extra_state_attributes[B_GRID_POWER_W] = [
+                            kit["findRawdataPageList"]["rGridPowerWatt"],
+                            kit["findRawdataPageList"]["sGridPowerWatt"],
+                            kit["findRawdataPageList"]["tGridPowerWatt"],
+                        ]
+                        self._attr_extra_state_attributes[B_GRID_POWER_VA] = [
+                            kit["findRawdataPageList"]["rGridPowerVA"],
+                            kit["findRawdataPageList"]["sGridPowerVA"],
+                            kit["findRawdataPageList"]["tGridPowerVA"],
+                        ]
+                        self._attr_extra_state_attributes[B_OUT_VOLT] = [
+                            kit["findRawdataPageList"]["rOutVolt"],
+                            kit["findRawdataPageList"]["sOutVolt"],
+                            kit["findRawdataPageList"]["tOutVolt"],
+                        ]
+                        self._attr_extra_state_attributes[B_OUT_CURR] = [
+                            kit["findRawdataPageList"]["rOutCurr"],
+                            kit["findRawdataPageList"]["sOutCurr"],
+                            kit["findRawdataPageList"]["tOutCurr"],
+                        ]
+                        self._attr_extra_state_attributes[B_OUT_POWER_WATT] = [
+                            kit["findRawdataPageList"]["rOutPowerWatt"],
+                            kit["findRawdataPageList"]["sOutPowerWatt"],
+                            kit["findRawdataPageList"]["tOutPowerWatt"],
+                        ]
+                        self._attr_extra_state_attributes[B_OUT_POWER_VA] = [
+                            kit["findRawdataPageList"]["rOutPowerVA"],
+                            kit["findRawdataPageList"]["sOutPowerVA"],
+                            kit["findRawdataPageList"]["tOutPowerVA"],
+                        ]
+                        self._attr_extra_state_attributes[B_OUT_FREQ] = [
+                            kit["findRawdataPageList"]["rOutFreq"],
+                            kit["findRawdataPageList"]["sOutFreq"],
+                            kit["findRawdataPageList"]["tOutFreq"],
+                        ]
+                        self._attr_extra_state_attributes[B_ON_G_VOLT] = [
+                            kit["findRawdataPageList"]["rOnGridOutVolt"],
+                            kit["findRawdataPageList"]["sOnGridOutVolt"],
+                            kit["findRawdataPageList"]["tOnGridOutVolt"],
+                        ]
+                        self._attr_extra_state_attributes[B_ON_G_FREQ] = [
+                            kit["findRawdataPageList"]["rOnGridOutFreq"]
+                        ]
+                        self._attr_extra_state_attributes[B_ON_G_POWER_W] = [
+                            kit["findRawdataPageList"]["rOnGridOutPowerWatt"],
+                            kit["findRawdataPageList"]["sOnGridOutPowerWatt"],
+                            kit["findRawdataPageList"]["tOnGridOutPowerWatt"],
+                        ]
+                        self._attr_extra_state_attributes[B_ON_G_FREQ] = [
+                            kit["findRawdataPageList"]["rOnGridOutFreq"]
+                        ]
+                        self._attr_extra_state_attributes[B_BACKUP_POWER_W] = [
+                            kit["findRawdataPageList"]["rBackupPowerWatt"]
+                        ]
+                else:
+                    self._attr_extra_state_attributes[I_PV_VOL_PV] = [
+                        None,
+                        None,
+                        None,
+                    ]
+                    self._attr_extra_state_attributes[I_PV_CURR_PV] = [
+                        None,
+                        None,
+                        None,
+                    ]
+                    self._attr_extra_state_attributes[I_G_VOL_L] = [
+                        None,
+                        None,
+                        None,
+                    ]
+                    self._attr_extra_state_attributes[I_G_CURR_L] = [
+                        None,
+                        None,
+                        None,
+                    ]
+                    self._attr_extra_state_attributes[I_G_FREQ_L] = [
+                        None,
+                        None,
+                        None,
+                    ]
 
         return value
 
@@ -1133,24 +1130,27 @@ class ESolarInverterBatterySoC(ESolarSensor):
     async def async_update(self) -> None:
         """Get the latest data and updates the states."""
         for plant in self._coordinator.data["plantList"]:
-            if plant["plantname"] == self._plant_name:
-                # Setup static attributes
-                self._attr_available = True
-                self._attr_extra_state_attributes[P_NAME] = plant["plantname"]
-                self._attr_extra_state_attributes[P_UID] = plant["plantuid"]
-                for kit in plant["kitList"]:
-                    if kit["devicesn"] == self.inverter_sn:
-                        self._attr_extra_state_attributes[I_MODEL] = kit["devicetype"]
-                        self._attr_extra_state_attributes[I_SN] = kit["devicesn"]
-                        self._attr_extra_state_attributes[B_CAPACITY] = kit[
-                            "storeDevicePower"
-                        ]["batCapcityStr"]
+            if plant["plantname"] != self._plant_name:
+                continue
+            # Setup static attributes
+            self._attr_available = True
+            self._attr_extra_state_attributes[P_NAME] = plant["plantname"]
+            self._attr_extra_state_attributes[P_UID] = plant["plantuid"]
+            if "kitList" not in plant or plant["kitList"] is None:
+                continue
+            for kit in plant["kitList"]:
+                if kit["devicesn"] == self.inverter_sn:
+                    self._attr_extra_state_attributes[I_MODEL] = kit["devicetype"]
+                    self._attr_extra_state_attributes[I_SN] = kit["devicesn"]
+                    self._attr_extra_state_attributes[B_CAPACITY] = kit[
+                        "storeDevicePower"
+                    ]["batCapcityStr"]
 
-                        # Setup state
-                        if kit["onLineStr"] == "1":
-                            self._attr_native_value = kit["storeDevicePower"][
-                                "batEnergyPercent"
-                            ]
+                    # Setup state
+                    if kit["onLineStr"] == "1":
+                        self._attr_native_value = kit["storeDevicePower"][
+                            "batEnergyPercent"
+                        ]
 
     @property
     def native_value(self) -> float | None:
@@ -1158,99 +1158,75 @@ class ESolarInverterBatterySoC(ESolarSensor):
         # Setup state
         value = None
         for plant in self._coordinator.data["plantList"]:
-            if plant["plantname"] == self._plant_name:
-                for kit in plant["kitList"]:
-                    if self.inverter_sn == kit["devicesn"]:
-                        if kit["onLineStr"] == "1":
-                            value = float(kit["storeDevicePower"]["batEnergyPercent"])
+            if plant["plantname"] != self._plant_name:
+                continue
+            if "kitList" not in plant or plant["kitList"] is None:
+                continue
+            for kit in plant["kitList"]:
+                if self.inverter_sn == kit["devicesn"] and kit["onLineStr"] == "1":
+                    value = float(kit["storeDevicePower"]["batEnergyPercent"])
 
-                            # Setup dynamic attributes
-                            self._attr_extra_state_attributes[B_CURRENT] = kit[
-                                "storeDevicePower"
-                            ]["batCurr"]
-                            self._attr_extra_state_attributes[B_POWER] = kit[
-                                "storeDevicePower"
-                            ]["batteryPower"]
+                    # Setup dynamic attributes
+                    self._attr_extra_state_attributes[B_CURRENT] = kit[
+                        "storeDevicePower"
+                    ]["batCurr"]
+                    self._attr_extra_state_attributes[B_POWER] = kit[
+                        "storeDevicePower"
+                    ]["batteryPower"]
 
-                            if kit["storeDevicePower"]["batteryDirection"] == 0:
-                                self._attr_extra_state_attributes[
-                                    B_DIRECTION
-                                ] = B_DIR_STB
-                            elif kit["storeDevicePower"]["batteryDirection"] == 1:
-                                self._attr_extra_state_attributes[
-                                    B_DIRECTION
-                                ] = B_DIR_DIS
-                            elif kit["storeDevicePower"]["batteryDirection"] == -1:
-                                self._attr_extra_state_attributes[
-                                    B_DIRECTION
-                                ] = B_DIR_CH
-                            else:
-                                self._attr_extra_state_attributes[
-                                    B_DIRECTION
-                                ] = P_UNKNOWN
+                    if kit["storeDevicePower"]["batteryDirection"] == 0:
+                        self._attr_extra_state_attributes[B_DIRECTION] = B_DIR_STB
+                    elif kit["storeDevicePower"]["batteryDirection"] == 1:
+                        self._attr_extra_state_attributes[B_DIRECTION] = B_DIR_DIS
+                    elif kit["storeDevicePower"]["batteryDirection"] == -1:
+                        self._attr_extra_state_attributes[B_DIRECTION] = B_DIR_CH
+                    else:
+                        self._attr_extra_state_attributes[B_DIRECTION] = P_UNKNOWN
 
-                            self._attr_extra_state_attributes[G_POWER] = kit[
-                                "storeDevicePower"
-                            ]["gridPower"]
+                    self._attr_extra_state_attributes[G_POWER] = kit[
+                        "storeDevicePower"
+                    ]["gridPower"]
 
-                            if kit["storeDevicePower"]["gridDirection"] == 1:
-                                self._attr_extra_state_attributes[
-                                    B_GRID_DIRECT
-                                ] = B_EXPORT
-                            elif kit["storeDevicePower"]["gridDirection"] == -1:
-                                self._attr_extra_state_attributes[
-                                    B_GRID_DIRECT
-                                ] = B_IMPORT
-                            else:
-                                self._attr_extra_state_attributes[
-                                    B_GRID_DIRECT
-                                ] = P_UNKNOWN
+                    if kit["storeDevicePower"]["gridDirection"] == 1:
+                        self._attr_extra_state_attributes[B_GRID_DIRECT] = B_EXPORT
+                    elif kit["storeDevicePower"]["gridDirection"] == -1:
+                        self._attr_extra_state_attributes[B_GRID_DIRECT] = B_IMPORT
+                    else:
+                        self._attr_extra_state_attributes[B_GRID_DIRECT] = P_UNKNOWN
 
-                            self._attr_extra_state_attributes[IO_POWER] = kit[
-                                "storeDevicePower"
-                            ]["inputOutputPower"]
+                    self._attr_extra_state_attributes[IO_POWER] = kit[
+                        "storeDevicePower"
+                    ]["inputOutputPower"]
 
-                            if kit["storeDevicePower"]["outPutDirection"] == 1:
-                                self._attr_extra_state_attributes[
-                                    IO_DIRECTION
-                                ] = B_EXPORT
-                            elif kit["storeDevicePower"]["outPutDirection"] == -1:
-                                self._attr_extra_state_attributes[
-                                    IO_DIRECTION
-                                ] = B_IMPORT
-                            else:
-                                self._attr_extra_state_attributes[
-                                    IO_DIRECTION
-                                ] = P_UNKNOWN
+                    if kit["storeDevicePower"]["outPutDirection"] == 1:
+                        self._attr_extra_state_attributes[IO_DIRECTION] = B_EXPORT
+                    elif kit["storeDevicePower"]["outPutDirection"] == -1:
+                        self._attr_extra_state_attributes[IO_DIRECTION] = B_IMPORT
+                    else:
+                        self._attr_extra_state_attributes[IO_DIRECTION] = P_UNKNOWN
 
-                            self._attr_extra_state_attributes[PV_POWER] = kit[
-                                "storeDevicePower"
-                            ]["pvPower"]
+                    self._attr_extra_state_attributes[PV_POWER] = kit[
+                        "storeDevicePower"
+                    ]["pvPower"]
 
-                            if kit["storeDevicePower"]["pvDirection"] == 1:
-                                self._attr_extra_state_attributes[
-                                    PV_DIRECTION
-                                ] = B_EXPORT
-                            elif kit["storeDevicePower"]["pvDirection"] == -1:
-                                self._attr_extra_state_attributes[
-                                    PV_DIRECTION
-                                ] = B_IMPORT
-                            else:
-                                self._attr_extra_state_attributes[
-                                    PV_DIRECTION
-                                ] = P_UNKNOWN
+                    if kit["storeDevicePower"]["pvDirection"] == 1:
+                        self._attr_extra_state_attributes[PV_DIRECTION] = B_EXPORT
+                    elif kit["storeDevicePower"]["pvDirection"] == -1:
+                        self._attr_extra_state_attributes[PV_DIRECTION] = B_IMPORT
+                    else:
+                        self._attr_extra_state_attributes[PV_DIRECTION] = P_UNKNOWN
 
-                            self._attr_extra_state_attributes[B_T_LOAD] = kit[
-                                "storeDevicePower"
-                            ]["totalLoadPower"]
-                            self._attr_extra_state_attributes[B_H_LOAD] = kit[
-                                "storeDevicePower"
-                            ]["homeLoadPower"]
-                            self._attr_extra_state_attributes[B_B_LOAD] = kit[
-                                "storeDevicePower"
-                            ]["backupLoadPower"]
-                            self._attr_extra_state_attributes[S_POWER] = kit[
-                                "storeDevicePower"
-                            ]["solarPower"]
+                    self._attr_extra_state_attributes[B_T_LOAD] = kit[
+                        "storeDevicePower"
+                    ]["totalLoadPower"]
+                    self._attr_extra_state_attributes[B_H_LOAD] = kit[
+                        "storeDevicePower"
+                    ]["homeLoadPower"]
+                    self._attr_extra_state_attributes[B_B_LOAD] = kit[
+                        "storeDevicePower"
+                    ]["backupLoadPower"]
+                    self._attr_extra_state_attributes[S_POWER] = kit[
+                        "storeDevicePower"
+                    ]["solarPower"]
 
         return value

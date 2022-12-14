@@ -294,65 +294,63 @@ def web_get_device_page_list(session, plant_info, use_pv_grid_attributes):
 
             kit = []
             for device in device_list:
-                if device["devicesn"] in plant["plantDetail"]["snList"]:
-                    _LOGGER.debug("Device SN: %s", device["devicesn"])
-                    if use_pv_grid_attributes:
-                        url = f"{BASE_URL_WEB}/cloudMonitor/deviceInfo/findRawdataPageList"
-                        payload = f"deviceSn={device['devicesn']}&deviceType={device['type']}&timeStr={datetime.date.today().strftime('%Y-%m-%d')}"
-                        _LOGGER.debug("Fetching URL    : %s", url)
-                        _LOGGER.debug("Fetching Payload: %s", payload)
-                        response = session.post(
-                            url, headers=headers, data=payload, timeout=WEB_TIMEOUT
+                if not device["devicesn"] in plant["plantDetail"]["snList"]:
+                    continue
+                _LOGGER.debug("Device SN: %s", device["devicesn"])
+                if use_pv_grid_attributes:
+                    url = f"{BASE_URL_WEB}/cloudMonitor/deviceInfo/findRawdataPageList"
+                    payload = f"deviceSn={device['devicesn']}&deviceType={device['type']}&timeStr={datetime.date.today().strftime('%Y-%m-%d')}"
+                    _LOGGER.debug("Fetching URL    : %s", url)
+                    _LOGGER.debug("Fetching Payload: %s", payload)
+                    response = session.post(
+                        url, headers=headers, data=payload, timeout=WEB_TIMEOUT
+                    )
+                    response.raise_for_status()
+                    find_rawdata_page_list = response.json()
+                    _LOGGER.debug(
+                        "Result length   : %s", len(find_rawdata_page_list["list"])
+                    )
+
+                    if len(find_rawdata_page_list["list"]) > 0:
+                        device.update(
+                            {"findRawdataPageList": find_rawdata_page_list["list"][0]}
                         )
-                        response.raise_for_status()
-                        find_rawdata_page_list = response.json()
+                    else:
+                        device.update({"findRawdataPageList": None})
+
+                    if VERBOSE_DEBUG and len(find_rawdata_page_list["list"]) > 0:
                         _LOGGER.debug(
-                            "Result length   : %s", len(find_rawdata_page_list["list"])
+                            "\n.../findRawdataPageList\n-----------------------\n%s",
+                            find_rawdata_page_list["list"][0],
                         )
 
-                        if len(find_rawdata_page_list["list"]) > 0:
-                            device.update(
-                                {
-                                    "findRawdataPageList": find_rawdata_page_list[
-                                        "list"
-                                    ][0]
-                                }
-                            )
-                            if VERBOSE_DEBUG:
-                                _LOGGER.debug(
-                                    "\n.../findRawdataPageList\n-----------------------\n%s",
-                                    find_rawdata_page_list["list"][0],
-                                )
-                        else:
-                            device.update({"findRawdataPageList": None})
-
-                    # Fetch battery for H1 system (UNTESTED CODE)
-                    if plant["type"] == 3:
-                        _LOGGER.debug("Fetching storage information")
-                        epochmilliseconds = round(
-                            int(
-                                (
-                                    datetime.datetime.utcnow()
-                                    - datetime.datetime(1970, 1, 1)
-                                ).total_seconds()
-                                * 1000
-                            )
+                # Fetch battery for H1 system (UNTESTED CODE)
+                if plant["type"] == 3:
+                    _LOGGER.debug("Fetching storage information")
+                    epochmilliseconds = round(
+                        int(
+                            (
+                                datetime.datetime.utcnow()
+                                - datetime.datetime(1970, 1, 1)
+                            ).total_seconds()
+                            * 1000
                         )
-                        url = f"{BASE_URL_WEB}/monitor/site/getStoreOrAcDevicePowerInfo"
-                        payload = f"plantuid={plant['plantuid']}&devicesn={device['devicesn']}&_={epochmilliseconds}"
-                        _LOGGER.debug("Fetching URL    : %s", url)
-                        _LOGGER.debug("Fetching Payload: %s", payload)
-                        response = session.post(
-                            url, headers=headers, data=payload, timeout=WEB_TIMEOUT
+                    )
+                    url = f"{BASE_URL_WEB}/monitor/site/getStoreOrAcDevicePowerInfo"
+                    payload = f"plantuid={plant['plantuid']}&devicesn={device['devicesn']}&_={epochmilliseconds}"
+                    _LOGGER.debug("Fetching URL    : %s", url)
+                    _LOGGER.debug("Fetching Payload: %s", payload)
+                    response = session.post(
+                        url, headers=headers, data=payload, timeout=WEB_TIMEOUT
+                    )
+                    response.raise_for_status()
+                    store_device_power = response.json()
+                    device.update(store_device_power)
+                    if VERBOSE_DEBUG:
+                        _LOGGER.debug(
+                            "getStoreOrAcDevicePowerInfo\n-------------------------------\n%s",
+                            store_device_power,
                         )
-                        response.raise_for_status()
-                        store_device_power = response.json()
-                        device.update(store_device_power)
-                        if VERBOSE_DEBUG:
-                            _LOGGER.debug(
-                                "getStoreOrAcDevicePowerInfo\n-------------------------------\n%s",
-                                store_device_power,
-                            )
 
                     kit.append(device)
 
