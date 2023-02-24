@@ -1,17 +1,17 @@
 {
   "domain": "saj_esolar_air",
   "name": "eSolar",
-  "version": "0.0.9",
-  "config_flow": true,
-  "issue_tracker": "https://github.com/faanskit/ha-esolar/issues",
-  "documentation": "https://github.com/faanskit/ha-esolar#readme",
-  "requirements": [],
-  "ssdp": [],
-  "zeroconf": [],
-  "homekit": {},
-  "dependencies": [],
   "codeowners": [
     "@faanskit"
   ],
-  "iot_class": "cloud_polling"
+  "config_flow": true,
+  "documentation": "https://github.com/faanskit/ha-esolar#readme",
+  "dependencies": [],
+  "homekit": {},
+  "iot_class": "cloud_polling",
+  "issue_tracker": "https://github.com/faanskit/ha-esolar/issues",
+  "requirements": [],
+  "ssdp": [],
+  "version": "0.0.9",
+  "zeroconf": []
 }
