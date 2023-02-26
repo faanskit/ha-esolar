@@ -1,4 +1,6 @@
-[![hacs_badge](https://img.shields.io/badge/HACS-Custom-41BDF5.svg)](https://github.com/hacs/integration) [![Donate](https://img.shields.io/badge/Donate-PayPal-green.svg)](https://www.paypal.me/faanskit/) [![Donate](https://img.shields.io/badge/Donate-BuyMeCoffe-green.svg)](https://www.buymeacoffee.com/faanskit)
+[![Open your Home Assistant instance and open a repository inside the Home Assistant Community Store.](https://my.home-assistant.io/badges/hacs_repository.svg)](https://my.home-assistant.io/redirect/hacs_repository/?owner=faanskit&repository=ha-esolar&category=integration)
+
+[![Donate](https://img.shields.io/badge/Donate-PayPal-green.svg)](https://www.paypal.me/faanskit/) [![Donate](https://img.shields.io/badge/Donate-BuyMeCoffe-green.svg)](https://www.buymeacoffee.com/faanskit)
 
 # Home Assistant SAJ eSolar Custom Integration
 This integration uses cloud polling from the SAJ eSolar portal using a reverse engineered private API. 
