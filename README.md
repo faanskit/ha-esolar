@@ -18,11 +18,7 @@ These attributes can be fetched by implementing a template sensor using jinja2. 
 
 # Installation
 ### HACS
-1. Have HACS installed, this will allow you to easily update
-2. Add https://github.com/faanskit/ha-esolar as a custom repository as Type: Integration
-3. Click install under "SAJ eSolar Air" in the Integration tab
-4. Restart Home Assistant
-5. Enable the integration
+[![Open your Home Assistant instance and open a repository inside the Home Assistant Community Store.](https://my.home-assistant.io/badges/hacs_repository.svg)](https://my.home-assistant.io/redirect/hacs_repository/?owner=faanskit&repository=ha-esolar&category=integration)
 
 ### Manual
 - Copy directory `custom_components/saj_esolar_air` to your `<config dir>/custom_components` directory.
