@@ -244,7 +244,8 @@ def web_get_plant_detailed_chart(session, plant_info):
                 if (plant_chart["type"]) == 0:
                     tmp = {}
                     tmp.update({"devicesn": inverter})
-                    tmp.update({"peakPower": plant_chart["peakPower"]})
+                    # I'm not sure about wich kind of data we need to pick here
+                    tmp.update({"peakPower": plant_chart["refreshPeakPower"]})
                     peak_pow.append(tmp)
                     plant.update({"peakList": peak_pow})
                     # plant.update({"peakPower": plant_chart["peakPower"]})
