@@ -701,7 +701,7 @@ class ESolarSensorPlantBatterySoC(ESolarSensor):
                 if "kitList" not in plant or plant["kitList"] is None:
                     continue
                 for kit in plant["kitList"]:
-                    if inverter == kit["devicesn"] and kit["onLineStr"] == "1":
+                    if inverter == kit["devicesn"] and kit["type"] == 2:
                         installed_power += kit["storeDevicePower"]["batCapcity"]
                         available_power += (
                             kit["storeDevicePower"]["batCapcity"]
@@ -724,7 +724,7 @@ class ESolarSensorPlantBatterySoC(ESolarSensor):
                 if "kitList" not in plant or plant["kitList"] is None:
                     continue
                 for kit in plant["kitList"]:
-                    if inverter == kit["devicesn"] and kit["onLineStr"] == "1":
+                    if inverter == kit["devicesn"] and kit["type"] == 2:
                         installed_power += kit["storeDevicePower"]["batCapcity"]
                         available_power += (
                             kit["storeDevicePower"]["batCapcity"]
@@ -1139,7 +1139,7 @@ class ESolarInverterBatterySoC(ESolarSensor):
             if "kitList" not in plant or plant["kitList"] is None:
                 continue
             for kit in plant["kitList"]:
-                if kit["devicesn"] == self.inverter_sn:
+                if kit["devicesn"] == self.inverter_sn and kit["type"] == 2:
                     self._attr_extra_state_attributes[I_MODEL] = kit["devicetype"]
                     self._attr_extra_state_attributes[I_SN] = kit["devicesn"]
                     self._attr_extra_state_attributes[B_CAPACITY] = kit[
@@ -1147,10 +1147,9 @@ class ESolarInverterBatterySoC(ESolarSensor):
                     ]["batCapcityStr"]
 
                     # Setup state
-                    if kit["onLineStr"] == "1":
-                        self._attr_native_value = kit["storeDevicePower"][
-                            "batEnergyPercent"
-                        ]
+                    self._attr_native_value = kit["storeDevicePower"][
+                        "batEnergyPercent"
+                    ]
 
     @property
     def native_value(self) -> float | None:
@@ -1163,7 +1162,7 @@ class ESolarInverterBatterySoC(ESolarSensor):
             if "kitList" not in plant or plant["kitList"] is None:
                 continue
             for kit in plant["kitList"]:
-                if self.inverter_sn == kit["devicesn"] and kit["onLineStr"] == "1":
+                if self.inverter_sn == kit["devicesn"] and kit["type"] == 2:
                     value = float(kit["storeDevicePower"]["batEnergyPercent"])
 
                     # Setup dynamic attributes
