@@ -6,12 +6,13 @@ from esolar import get_esolar_data
 
 USER = "NAME"
 PASSWORD = "PASSWORD"
+REGION="in"
 OUTPUT_FILE = "output.txt"
 
 f=open(OUTPUT_FILE, "w")
 try:
     print("Obtaining plant information")
-    plant_info = get_esolar_data(USER, PASSWORD)
+    plant_info = get_esolar_data(REGION, USER, PASSWORD)
     
     print(f"\nProducing the output into {OUTPUT_FILE}")
     f.write(json.dumps(plant_info))

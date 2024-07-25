@@ -9,7 +9,7 @@ from typing import Any, TypedDict, cast
 import requests
 
 from homeassistant.config_entries import ConfigEntry
-from homeassistant.const import CONF_PASSWORD, CONF_USERNAME, Platform
+from homeassistant.const import CONF_REGION, CONF_PASSWORD, CONF_USERNAME, Platform
 from homeassistant.core import HomeAssistant
 from homeassistant.exceptions import ConfigEntryAuthFailed, HomeAssistantError
 from homeassistant.helpers.update_coordinator import DataUpdateCoordinator, UpdateFailed
@@ -487,6 +487,7 @@ def get_data(
 
     username = config.get(CONF_USERNAME)
     password = config.get(CONF_PASSWORD)
+    region = config.get(CONF_REGION)
     plants = options.get(CONF_MONITORED_SITES)
     use_pv_grid_attributes = options.get(CONF_PV_GRID_DATA)
 
@@ -497,7 +498,7 @@ def get_data(
             plants,
             use_pv_grid_attributes,
         )
-        plant_info = get_esolar_data(username, password, plants, use_pv_grid_attributes)
+        plant_info = get_esolar_data(region, username, password, plants, use_pv_grid_attributes)
 
     except requests.exceptions.HTTPError as errh:
         raise requests.exceptions.HTTPError(errh)
