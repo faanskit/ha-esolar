@@ -8,8 +8,6 @@ import requests
 
 _LOGGER = logging.getLogger(__name__)
 
-BASE_URL = "https://fopapp.saj-electric.com/sajAppApi/api"
-BASE_URL_WEB = "https://fop.saj-electric.com/saj"
 WEB_TIMEOUT = 10
 
 BASIC_TEST = False
@@ -19,6 +17,23 @@ if BASIC_TEST:
         get_esolar_data_static_h1_r5,
         web_get_plant_static_h1_r5,
     )
+
+
+def base_url(region):
+    if (region == "eu"):
+        return "https://fopapp.saj-electric.com/sajAppApi/api"
+    elif (region == "in"):
+        return "https://intopapp.saj-electric.com/sajAppApi/api"
+    else:
+        raise ValueError("Region not set. Please run Configure again")
+
+def base_url_web(region):
+    if (region == "eu"):
+        return "https://fop.saj-electric.com/saj"
+    elif (region == "in"):
+        return "https://intop.saj-electric.com/saj"
+    else:
+        raise ValueError("Region not set. Please run Configure again")
 
 
 def add_months(sourcedate, months):
@@ -41,20 +56,20 @@ def add_years(source_date, years):
         )
 
 
-def get_esolar_data(username, password, plant_list=None, use_pv_grid_attributes=True):
+def get_esolar_data(region, username, password, plant_list=None, use_pv_grid_attributes=True):
     """SAJ eSolar Data Update."""
     if BASIC_TEST:
         return get_esolar_data_static_h1_r5(
-            username, password, plant_list, use_pv_grid_attributes
+            region, username, password, plant_list, use_pv_grid_attributes
         )
 
     try:
         plant_info = None
-        session = esolar_web_autenticate(username, password)
-        plant_info = web_get_plant(session, plant_list)
-        web_get_plant_details(session, plant_info)
-        web_get_plant_detailed_chart(session, plant_info)
-        web_get_device_page_list(session, plant_info, use_pv_grid_attributes)
+        session = esolar_web_autenticate(region, username, password)
+        plant_info = web_get_plant(region, session, plant_list)
+        web_get_plant_details(region, session, plant_info)
+        web_get_plant_detailed_chart(region, session, plant_info)
+        web_get_device_page_list(region, session, plant_info, use_pv_grid_attributes)
 
     except requests.exceptions.HTTPError as errh:
         raise requests.exceptions.HTTPError(errh)
@@ -70,7 +85,7 @@ def get_esolar_data(username, password, plant_list=None, use_pv_grid_attributes=
     return plant_info
 
 
-def esolar_web_autenticate(username, password):
+def esolar_web_autenticate(region, username, password):
     """Authenticate the user to the SAJ's WEB Portal."""
     if BASIC_TEST:
         return True
@@ -78,7 +93,7 @@ def esolar_web_autenticate(username, password):
     try:
         session = requests.Session()
         response = session.post(
-            BASE_URL_WEB + "/login",
+            base_url_web(region) + "/login",
             data={
                 "lang": "en",
                 "username": username,
@@ -105,7 +120,7 @@ def esolar_web_autenticate(username, password):
         raise requests.exceptions.RequestException(errr)
 
 
-def web_get_plant(session, requested_plant_list=None):
+def web_get_plant(region, session, requested_plant_list=None):
     """Retrieve the platUid from WEB Portal using web_authenticate."""
     if session is None:
         raise ValueError("Missing session identifier trying to obain plants")
@@ -116,7 +131,7 @@ def web_get_plant(session, requested_plant_list=None):
     try:
         output_plant_list = []
         response = session.post(
-            BASE_URL_WEB + "/monitor/site/getUserPlantList",
+            base_url_web(region) + "/monitor/site/getUserPlantList",
             data={
                 "pageNo": "",
                 "pageSize": "",
@@ -157,7 +172,7 @@ def web_get_plant(session, requested_plant_list=None):
         raise requests.exceptions.RequestException(errr)
 
 
-def web_get_plant_details(session, plant_info):
+def web_get_plant_details(region, session, plant_info):
     """Retrieve platUid from the WEB Portal using web_authenticate."""
     if session is None:
         raise ValueError("Missing session identifier trying to obain plants")
@@ -166,7 +181,7 @@ def web_get_plant_details(session, plant_info):
         device_list = []
         for plant in plant_info["plantList"]:
             response = session.post(
-                BASE_URL_WEB + "/monitor/site/getPlantDetailInfo",
+                base_url_web(region) + "/monitor/site/getPlantDetailInfo",
                 data={
                     "plantuid": plant["plantuid"],
                     "clientDate": datetime.date.today().strftime("%Y-%m-%d"),
@@ -190,7 +205,7 @@ def web_get_plant_details(session, plant_info):
         raise requests.exceptions.RequestException(errr)
 
 
-def web_get_plant_detailed_chart(session, plant_info):
+def web_get_plant_detailed_chart(region, session, plant_info):
     """Retrieve the kitList from the WEB Portal with web_authenticate."""
     if session is None:
         raise ValueError("Missing session identifier trying to obain plants")
@@ -227,10 +242,10 @@ def web_get_plant_detailed_chart(session, plant_info):
             for inverter in plant["plantDetail"]["snList"]:
                 if plant["type"] == 3:
                     # Battery system
-                    url = f"{BASE_URL_WEB}/monitor/site/getPlantDetailChart2?plantuid={plant['plantuid']}&chartDateType=1&energyType=0&clientDate={client_date}&deviceSnArr=&chartCountType=2&previousChartDay={previous_chart_day}&nextChartDay={next_chart_day}&chartDay={chart_day}&previousChartMonth={previous_chart_month}&nextChartMonth={next_chart_month}&chartMonth={chart_month}&previousChartYear={previous_chart_year}&nextChartYear={next_chart_year}&chartYear={chart_year}&elecDevicesn={inverter}&_={epochmilliseconds}"
+                    url = f"{base_url_web(region)}/monitor/site/getPlantDetailChart2?plantuid={plant['plantuid']}&chartDateType=1&energyType=0&clientDate={client_date}&deviceSnArr=&chartCountType=2&previousChartDay={previous_chart_day}&nextChartDay={next_chart_day}&chartDay={chart_day}&previousChartMonth={previous_chart_month}&nextChartMonth={next_chart_month}&chartMonth={chart_month}&previousChartYear={previous_chart_year}&nextChartYear={next_chart_year}&chartYear={chart_year}&elecDevicesn={inverter}&_={epochmilliseconds}"
                 else:
                     # Normal system
-                    url = f"{BASE_URL_WEB}/monitor/site/getPlantDetailChart2?plantuid={plant['plantuid']}&chartDateType=1&energyType=0&clientDate={client_date}&deviceSnArr={inverter}&chartCountType=2&previousChartDay={previous_chart_day}&nextChartDay={next_chart_day}&chartDay={chart_day}&previousChartMonth={previous_chart_month}&nextChartMonth={next_chart_month}&chartMonth={chart_month}&previousChartYear={previous_chart_year}&nextChartYear={next_chart_year}&chartYear={chart_year}&elecDevicesn=&_={epochmilliseconds}"
+                    url = f"{base_url_web(region)}/monitor/site/getPlantDetailChart2?plantuid={plant['plantuid']}&chartDateType=1&energyType=0&clientDate={client_date}&deviceSnArr={inverter}&chartCountType=2&previousChartDay={previous_chart_day}&nextChartDay={next_chart_day}&chartDay={chart_day}&previousChartMonth={previous_chart_month}&nextChartMonth={next_chart_month}&chartMonth={chart_month}&previousChartYear={previous_chart_year}&nextChartYear={next_chart_year}&chartYear={chart_year}&elecDevicesn=&_={epochmilliseconds}"
 
                 _LOGGER.debug("Fetching URL    : %s", url)
                 response = session.post(url, timeout=WEB_TIMEOUT)
@@ -263,7 +278,7 @@ def web_get_plant_detailed_chart(session, plant_info):
         raise requests.exceptions.RequestException(errr)
 
 
-def web_get_device_page_list(session, plant_info, use_pv_grid_attributes):
+def web_get_device_page_list(region, session, plant_info, use_pv_grid_attributes):
     """Retrieve the platUid from the WEB Portal with web_authenticate."""
     if session is None:
         raise ValueError("Missing session identifier trying to obain plants")
@@ -278,7 +293,7 @@ def web_get_device_page_list(session, plant_info, use_pv_grid_attributes):
             _LOGGER.debug("Plant Type: %s", plant["type"])
 
             chart_month = datetime.date.today().strftime("%Y-%m")
-            url = f"{BASE_URL_WEB}/cloudMonitor/device/findDevicePageList"
+            url = f"{base_url_web(region)}/cloudMonitor/device/findDevicePageList"
             payload = f"officeId=1&pageNo=&pageSize=&orderName=1&orderType=2&plantuid={plant['plantuid']}&deviceStatus=&localDate={datetime.date.today().strftime('%Y-%m-%d')}&localMonth={chart_month}"
             _LOGGER.debug("Fetching URL    : %s", url)
             _LOGGER.debug("Fetching Payload: %s", payload)
@@ -298,7 +313,7 @@ def web_get_device_page_list(session, plant_info, use_pv_grid_attributes):
                     continue
                 _LOGGER.debug("Device SN: %s", device["devicesn"])
                 if use_pv_grid_attributes:
-                    url = f"{BASE_URL_WEB}/cloudMonitor/deviceInfo/findRawdataPageList"
+                    url = f"{base_url_web(region)}/cloudMonitor/deviceInfo/findRawdataPageList"
                     payload = f"deviceSn={device['devicesn']}&deviceType={device['type']}&timeStr={datetime.date.today().strftime('%Y-%m-%d')}"
                     _LOGGER.debug("Fetching URL    : %s", url)
                     _LOGGER.debug("Fetching Payload: %s", payload)
@@ -336,7 +351,7 @@ def web_get_device_page_list(session, plant_info, use_pv_grid_attributes):
                             * 1000
                         )
                     )
-                    url = f"{BASE_URL_WEB}/monitor/site/getStoreOrAcDevicePowerInfo"
+                    url = f"{base_url_web(region)}/monitor/site/getStoreOrAcDevicePowerInfo"
                     payload = f"plantuid={plant['plantuid']}&devicesn={device['devicesn']}&_={epochmilliseconds}"
                     _LOGGER.debug("Fetching URL    : %s", url)
                     _LOGGER.debug("Fetching Payload: %s", payload)

@@ -8,7 +8,7 @@ import requests
 import voluptuous as vol
 
 from homeassistant import config_entries
-from homeassistant.const import CONF_PASSWORD, CONF_USERNAME
+from homeassistant.const import CONF_REGION, CONF_PASSWORD, CONF_USERNAME
 from homeassistant.core import HomeAssistant, callback
 from homeassistant.data_entry_flow import FlowResult
 from homeassistant.exceptions import HomeAssistantError
@@ -28,6 +28,7 @@ _LOGGER = logging.getLogger(__name__)
 
 STEP_USER_DATA_SCHEMA = vol.Schema(
     {
+        vol.Required(CONF_REGION, default="eu"): vol.In(["eu","in"]),
         vol.Required(CONF_USERNAME): str,
         vol.Required(CONF_PASSWORD): str,
     }
@@ -41,11 +42,11 @@ class ESolarHub:
         """Initialize."""
         self.plant_list: dict[str, Any] = {}
 
-    def auth_and_get_solar_plants(self, username: str, password: str) -> bool:
+    def auth_and_get_solar_plants(self, region: str, username: str, password: str) -> bool:
         """Download and list availablse inverters."""
         try:
-            session = esolar_web_autenticate(username, password)
-            self.plant_list = web_get_plant(session).get("plantList")
+            session = esolar_web_autenticate(region, username, password)
+            self.plant_list = web_get_plant(region, session).get("plantList")
         except requests.exceptions.HTTPError:
             _LOGGER.error("Login: HTTPError")
             return False
@@ -67,8 +68,9 @@ async def validate_input(hass: HomeAssistant, data: dict[str, Any]) -> dict[str,
     hub = ESolarHub()
     if not await hass.async_add_executor_job(
         hub.auth_and_get_solar_plants,
+        data[CONF_REGION],
         data[CONF_USERNAME],
-        data[CONF_PASSWORD],
+        data[CONF_PASSWORD]
     ):
         raise InvalidAuth
     return {"plant_list": hub.plant_list}
